@@ -54,6 +54,11 @@ export default function MatchPitchView({
   ];
 
   const ballX = BALL_ZONE_X[snapshot.ball_zone] ?? 50;
+  const currentAction = [...snapshot.events]
+    .reverse()
+    .find((event) => event.minute === snapshot.current_minute && event.player_id !== null);
+  const activePlayerId = currentAction?.player_id ?? null;
+  const actionX = currentAction ? (BALL_ZONE_X[currentAction.zone] ?? ballX) : null;
   const possessionTeam =
     snapshot.possession === "Home" ? snapshot.home_team.name : snapshot.away_team.name;
   const ballZoneLabel = t(`match.ballZones.${snapshot.ball_zone}`, {
@@ -150,17 +155,20 @@ export default function MatchPitchView({
             .join("")
             .toUpperCase();
           const shortName = marker.player.name.trim().split(/\s+/).slice(-1)[0] ?? marker.player.name;
+          const isInAction = marker.player.id === activePlayerId;
+          const markerLeft = isInAction && actionX !== null ? actionX : marker.left;
+          const markerTop = isInAction ? (marker.side === "Home" ? 42 : 58) : marker.top;
 
           return (
             <div
               key={marker.player.id}
               title={`${marker.player.name} · ${marker.side === "Home" ? snapshot.home_team.name : snapshot.away_team.name}`}
               aria-label={marker.player.name}
-              className="absolute z-20 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-0.5 transition-[left,top] duration-700 ease-out hover:z-40 hover:scale-110"
-              style={{ left: `${marker.left}%`, top: `${marker.top}%` }}
+              className={`absolute z-20 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-0.5 transition-[left,top] duration-700 ease-out hover:z-40 hover:scale-110 ${isInAction ? "z-30 scale-110" : ""}`}
+              style={{ left: `${markerLeft}%`, top: `${markerTop}%` }}
             >
               <span
-                className="flex h-7 w-7 items-center justify-center rounded-full border-2 border-white/90 text-[9px] font-black text-white shadow-[0_2px_8px_rgba(0,0,0,0.4)]"
+                className={`flex h-7 w-7 items-center justify-center rounded-full border-2 border-white/90 text-[9px] font-black text-white shadow-[0_2px_8px_rgba(0,0,0,0.4)] ${isInAction ? "animate-pulse ring-4 ring-white/50" : ""}`}
                 style={{ backgroundColor: marker.color }}
               >
                 {jersey ?? initials}
