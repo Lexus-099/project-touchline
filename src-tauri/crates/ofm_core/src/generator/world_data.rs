@@ -821,6 +821,12 @@ mod tests {
                     kind: WorldDataEntityKind::Player,
                     entity_id: "player-2".to_string(),
                     source_id: "missing-source".to_string(),
+                    external_id: "different-id".to_string(),
+                },
+                WorldDataEntitySource {
+                    kind: WorldDataEntityKind::Player,
+                    entity_id: "player-2".to_string(),
+                    source_id: "open-data".to_string(),
                     external_id: "same-id".to_string(),
                 },
             ],
