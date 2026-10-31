@@ -1780,6 +1780,7 @@ pub fn merge_world_packages(packages: Vec<WorldPackage>) -> (WorldPackage, Vec<P
     let mut players: BTreeMap<String, (PlayerDef, String)> = BTreeMap::new();
     let mut staff_map: BTreeMap<String, (StaffDef, String)> = BTreeMap::new();
     let mut competitions: BTreeMap<String, (CompetitionDefinition, String)> = BTreeMap::new();
+    let mut world_data_manifests: Vec<(WorldDataManifest, String)> = Vec::new();
 
     // Collected meta fields for union/max merging.
     let mut all_default_active_competitions: Vec<String> = Vec::new();
@@ -1884,7 +1885,9 @@ pub fn merge_world_packages(packages: Vec<WorldPackage>) -> (WorldPackage, Vec<P
                 None => merged_names = Some(names),
             }
         }
-        merged.world_data_manifests.extend(package.world_data_manifests);
+        for (index, manifest) in package.world_data_manifests.into_iter().enumerate() {
+            world_data_manifests.push((manifest, file_of("worldDataManifest", index)));
+        }
         // A repeat inside one package is that package's own mistake and travels with it; a later
         // package replacing an earlier one's pool is stacking, and is not recorded.
         merged
@@ -1931,6 +1934,11 @@ pub fn merge_world_packages(packages: Vec<WorldPackage>) -> (WorldPackage, Vec<P
     merged
         .sources
         .insert("competition".to_string(), competitions_files);
+    let (manifests, manifest_files): (Vec<_>, Vec<_>) = world_data_manifests.into_iter().unzip();
+    merged.world_data_manifests = manifests;
+    merged
+        .sources
+        .insert("worldDataManifest".to_string(), manifest_files);
 
     // `validate_ids` *and* the non-metadata parts of `validate_package`.
     //
