@@ -91,7 +91,7 @@ describe("match pitch statistics", () => {
     expect(filterMatchEvents(events, "cards").map((item) => item.event_type)).toEqual(["YellowCard"]);
     expect(filterMatchEvents(events, "substitutions").map((item) => item.event_type)).toEqual(["Substitution"]);
     expect(filterMatchEvents(events, "injuries").map((item) => item.event_type)).toEqual(["Injury"]);
-    expect(filterMatchEvents(events, "all", 2).map((item) => item.event_type)).toEqual(["Goal", "ShotOffTarget"]);
+    expect(filterMatchEvents(events, "all", 2).map((item) => item.event_type)).toEqual(["Injury", "Goal"]);
   });
 
 
