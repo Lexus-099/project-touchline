@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { MatchEvent } from "./types";
 import {
+  buildMatchMomentum,
   buildMatchStats,
   buildPlayerMatchContribution,
   filterMatchEvents,
@@ -84,6 +85,24 @@ describe("match pitch statistics", () => {
     expect(filterMatchEvents(events, "cards").map((item) => item.event_type)).toEqual(["YellowCard"]);
     expect(filterMatchEvents(events, "substitutions").map((item) => item.event_type)).toEqual(["Substitution"]);
     expect(filterMatchEvents(events, "all", 2).map((item) => item.event_type)).toEqual(["Goal", "ShotOffTarget"]);
+  });
+
+
+  it("groups pressure events into 15-minute periods and includes extra time", () => {
+    const periods = buildMatchMomentum([
+      event("ShotSaved", "Home"),
+      { ...event("Corner", "Away"), minute: 16 },
+      { ...event("Goal", "Home"), minute: 90 },
+      { ...event("ShotOffTarget", "Away"), minute: 105 },
+      { ...event("Foul", "Away"), minute: 106 },
+    ], 120);
+
+    expect(periods).toHaveLength(8);
+    expect(periods[0]).toMatchObject({ start: 0, home: 1, away: 0 });
+    expect(periods[1]).toMatchObject({ start: 15, home: 0, away: 1 });
+    expect(periods[5]).toMatchObject({ start: 75, home: 1, away: 0 });
+    expect(periods[6]).toMatchObject({ start: 90, home: 0, away: 1 });
+    expect(periods[7]).toMatchObject({ start: 105, home: 0, away: 0 });
   });
 
   it("returns no events for a zero limit", () => {
