@@ -720,7 +720,7 @@ Place a file with this schema anywhere in the package directory tree. More than 
 
 ### Entity source mapping
 
-Each mapping has `kind`, `entityId`, `sourceId` and `externalId`. Supported kinds are `confederation`, `country`, `club`, `player`, `staff`, `competition`, `nationalTeam`, `manager` and `stadium`. The entity ID must refer to an entity that the current package schema can resolve. Provider IDs are scoped by source and entity kind.
+Each mapping has `kind`, `entityId`, `sourceId` and `externalId`. The entity-kind enum also reserves `nationalTeam`, `manager` and `stadium` for future package schemas; the current package loader can resolve `confederation`, `country`, `club`, `player`, `staff` and `competition`. A mapping must target an entity that the current package actually contains. Provider IDs are scoped by source and entity kind.
 
 ### Media entry
 
