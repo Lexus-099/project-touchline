@@ -2607,7 +2607,18 @@
     "resume": "Devam et",
     "pausedResumesAt": "Duraklatıldı · {{speed}} hızında sürecek",
     "playingAt": "{{speed}} hızında oynanıyor",
-    "spaceKey": "Boşluk"
+    "spaceKey": "Boşluk",
+    "pitchView": "Maç Sahası",
+    "inPossession": "Topa sahip",
+    "ballZone": "Top bölgesi",
+    "pitchHint": "Oyuncu işaretçileri takımların dizilişini, top işaretçisi ise maç motorunun güncel bölgesini gösterir.",
+    "ballZones": {
+      "HomeBox": "Ev sahibi ceza sahası",
+      "HomeDefense": "Ev sahibi savunma bölgesi",
+      "Midfield": "Orta saha",
+      "AwayDefense": "Deplasman savunma bölgesi",
+      "AwayBox": "Deplasman ceza sahası"
+    }
   },
   "endOfSeason": {
     "seasonComplete": "Sezon Tamamlandı",
