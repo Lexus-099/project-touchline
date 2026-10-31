@@ -31,6 +31,7 @@ describe("match pitch statistics", () => {
       event("ShotOffTarget"),
       event("ShotBlocked"),
       event("Goal", "Away", "p2"),
+      event("Injury", "Home", "p1"),
     ]);
 
     expect(stats.Home.goals).toBe(1);
@@ -39,6 +40,7 @@ describe("match pitch statistics", () => {
     expect(stats.Home.shotsBlocked).toBe(1);
     expect(stats.Away.goals).toBe(1);
     expect(stats.Away.shotsOnTarget).toBe(1);
+    expect(stats.Home.injuries).toBe(1);
   });
 
   it("derives individual goals, assists, shots and actions from the event log", () => {
@@ -48,6 +50,7 @@ describe("match pitch statistics", () => {
       event("PassCompleted", "Home", "creator"),
       event("Tackle", "Home", "creator"),
       event("YellowCard", "Home", "creator"),
+      event("Injury", "Home", "striker"),
       event("Dribble", "Away", "opponent"),
     ];
 
@@ -59,6 +62,7 @@ describe("match pitch statistics", () => {
       tackles: 0,
       dribbles: 0,
       cards: 0,
+      injuries: 1,
     });
     expect(buildPlayerMatchContribution(events, "creator")).toEqual({
       goals: 0,
@@ -68,6 +72,7 @@ describe("match pitch statistics", () => {
       tackles: 1,
       dribbles: 0,
       cards: 1,
+      injuries: 0,
     });
     expect(buildPlayerMatchContribution(events, null).goals).toBe(0);
   });
@@ -79,11 +84,13 @@ describe("match pitch statistics", () => {
       event("Substitution"),
       event("ShotOffTarget"),
       event("Goal", "Away"),
+      event("Injury", "Home", "p3"),
     ];
 
     expect(filterMatchEvents(events, "goals", 1).map((item) => item.event_type)).toEqual(["Goal"]);
     expect(filterMatchEvents(events, "cards").map((item) => item.event_type)).toEqual(["YellowCard"]);
     expect(filterMatchEvents(events, "substitutions").map((item) => item.event_type)).toEqual(["Substitution"]);
+    expect(filterMatchEvents(events, "injuries").map((item) => item.event_type)).toEqual(["Injury"]);
     expect(filterMatchEvents(events, "all", 2).map((item) => item.event_type)).toEqual(["Goal", "ShotOffTarget"]);
   });
 
