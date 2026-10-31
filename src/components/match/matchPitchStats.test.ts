@@ -112,7 +112,19 @@ describe("match pitch statistics", () => {
     expect(periods[7]).toMatchObject({ start: 105, home: 0, away: 0 });
   });
 
-  it("returns no events for a zero limit", () => {
-    expect(filterMatchEvents([event("Goal")], "all", 0)).toEqual([]);
+  it("returns no events for zero, negative or fractional limits below one", () => {
+    const events = [event("Goal"), event("YellowCard")];
+    expect(filterMatchEvents(events, "all", 0)).toEqual([]);
+    expect(filterMatchEvents(events, "all", -1)).toEqual([]);
+    expect(filterMatchEvents(events, "all", 0.5)).toEqual([]);
+  });
+
+  it("uses a safe default for a non-finite limit", () => {
+    const events = Array.from({ length: 10 }, (_, index) => ({
+      ...event("Goal"),
+      minute: index + 1,
+    }));
+    expect(filterMatchEvents(events, "all", Number.NaN)).toHaveLength(8);
+    expect(filterMatchEvents(events, "all", Number.POSITIVE_INFINITY)).toHaveLength(8);
   });
 });
