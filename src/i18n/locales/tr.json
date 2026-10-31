@@ -2659,7 +2659,9 @@
     "cards": "Kartlar",
     "shotsBlocked": "Bloklanan şut",
     "eventFilter": "Olayları filtrele",
-    "playerRating": "Maç puanı"
+    "playerRating": "Maç puanı",
+    "momentum": "Maçın momentumu",
+    "momentumHint": "15 dakikalık periyotlara göre hücum olayları"
   },
   "endOfSeason": {
     "seasonComplete": "Sezon Tamamlandı",
