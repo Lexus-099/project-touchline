@@ -1,0 +1,26 @@
+{
+  "schema": "competition",
+  "items": [
+    {
+      "id": "tur-super-lig-2026-27",
+      "name": "Trendyol Süper Lig",
+      "type": "League",
+      "scope": "Domestic",
+      "countryId": "TUR",
+      "priority": 0,
+      "format": {
+        "kind": "LeagueTable",
+        "legs": 2
+      },
+      "participants": {
+        "selector": {
+          "kind": "allInCountry",
+          "country": "TUR"
+        }
+      },
+      "berths": [],
+      "seasonStartMonth": 8,
+      "seasonStartDay": 14
+    }
+  ]
+}
