@@ -17,7 +17,7 @@
   "entities": [
     {
       "kind": "country",
-      "entityId": "TUR",
+      "entityId": "TR",
       "sourceId": "openfootball-europe-turkey-2026-27",
       "externalId": "Turkey"
     },
