@@ -709,7 +709,7 @@ export default function MatchPitchView({
                 title: t("match.defending"),
                 attributes: [
                   [t("match.tackling"), selectedPlayer.tackling],
-                  [t("match.defendingSkill"), selectedPlayer.defending],
+                  [t("match.defending"), selectedPlayer.defending],
                   [t("match.positioning"), selectedPlayer.positioning],
                   [t("match.aggression"), selectedPlayer.aggression],
                 ],
