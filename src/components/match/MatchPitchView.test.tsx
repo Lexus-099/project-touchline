@@ -78,6 +78,26 @@ describe("MatchPitchView", () => {
     expect(screen.queryByText("match.eventTypes.YellowCard")).toBeNull();
   });
 
+
+  it("uses timeline markers to jump to a matching event category", () => {
+    renderPitch();
+
+    fireEvent.click(screen.getByRole("button", { name: "18' · match.eventTypes.YellowCard" }));
+
+    expect(screen.getByText("match.eventTypes.YellowCard")).toBeInTheDocument();
+    expect(screen.queryByText("match.eventTypes.Goal")).toBeNull();
+    expect(screen.queryByText("match.eventTypes.ShotOffTarget")).toBeNull();
+  });
+
+  it("renders the match momentum chart for the current match period", () => {
+    renderPitch();
+
+    expect(screen.getByText("match.momentum")).toBeInTheDocument();
+    expect(screen.getByText("match.momentumHint")).toBeInTheDocument();
+    expect(screen.getByText("0–15'")).toBeInTheDocument();
+    expect(screen.getByRole("progressbar", { name: "match.phases.FullTime" })).toBeInTheDocument();
+  });
+
   it("allows the bench player to open the same player profile", () => {
     const snapshot = makeSnapshot();
     snapshot.home_bench = [snapshot.home_team.players[0]];
