@@ -1,0 +1,10 @@
+{
+  "schema": "country",
+  "items": [
+    {
+      "id": "TUR",
+      "name": "Türkiye",
+      "confederation": ""
+    }
+  ]
+}
