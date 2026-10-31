@@ -3203,6 +3203,48 @@ mod tests {
     }
 
     #[test]
+    fn qualifying_asset_paths_keeps_manifest_asset_paths_aligned_with_entity_artwork() {
+        let team: TeamDef = serde_json::from_value(serde_json::json!({
+            "id": "sample-club",
+            "name": "Sample Club",
+            "city": "London",
+            "country": "ENG",
+            "colors": { "primary": "#112233", "secondary": "#ffffff" },
+            "logo": "assets/crests/sample-club.png"
+        }))
+        .expect("team definition");
+
+        let mut package = WorldPackage {
+            teams: vec![team],
+            world_data_manifests: vec![WorldDataManifest {
+                assets: vec![super::super::world_data::WorldDataAsset {
+                    path: "assets/crests/sample-club.png".to_string(),
+                    kind: super::super::world_data::WorldDataAssetKind::ClubCrest,
+                    owner_kind: WorldDataEntityKind::Club,
+                    owner_id: "sample-club".to_string(),
+                    source_id: "federation".to_string(),
+                    license: "CC-BY-4.0".to_string(),
+                    redistribution_allowed: true,
+                    ..super::super::world_data::WorldDataAsset::default()
+                }],
+                ..WorldDataManifest::default()
+            }],
+            ..WorldPackage::default()
+        };
+
+        qualify_package_asset_paths(&mut package, "world-pack");
+
+        assert_eq!(
+            package.teams[0].logo.as_deref(),
+            Some("world-pack/assets/crests/sample-club.png")
+        );
+        assert_eq!(
+            package.world_data_manifests[0].assets[0].path,
+            "world-pack/assets/crests/sample-club.png"
+        );
+    }
+
+    #[test]
     fn qualifying_asset_paths_drops_a_reference_that_escapes_the_package() {
         // A manifest is as untrusted as the archive entries beside it, and these
         // values are handed to the asset protocol verbatim. A club that names a
