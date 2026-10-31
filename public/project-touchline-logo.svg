@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 220" role="img" aria-labelledby="title desc">
+ <title id="title">PROJECT TOUCHLINE</title><desc id="desc">Project Touchline football management simulator logo</desc>
+ <defs><linearGradient id="red" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="#f04452"/><stop offset="1" stop-color="#b7112c"/></linearGradient></defs>
+ <g transform="translate(12 10)">
+  <circle cx="98" cy="98" r="88" fill="#111827"/><circle cx="98" cy="98" r="82" fill="none" stroke="url(#red)" stroke-width="9"/>
+  <path d="M54 151V48h64c34 0 53 17 53 47 0 31-20 49-55 49H86v-27h29c16 0 25-7 25-22 0-14-9-21-25-21H85v77z" fill="#f7f8fa"/>
+  <path d="M128 111h81v25h-28v48h-26v-48h-27z" fill="url(#red)"/>
+  <circle cx="187" cy="174" r="25" fill="#f7f8fa" stroke="#111827" stroke-width="4"/>
+  <path d="M187 159l9 7-3 11h-12l-3-11zM163 172l10-5 5 10-7 9-9-5zM210 172l-10-5-5 10 7 9 9-5z" fill="#111827"/>
+ </g>
+ <g font-family="Arial,Helvetica,sans-serif" font-weight="800">
+  <text x="248" y="78" font-size="40" letter-spacing="8" fill="#344054">PROJECT</text>
+  <text x="244" y="158" font-size="86" letter-spacing="-2" fill="#111827">TOUCH</text>
+  <text x="552" y="158" font-size="86" letter-spacing="-2" fill="#c81736">LINE</text>
+  <text x="250" y="194" font-size="18" letter-spacing="7" font-weight="600" fill="#667085">FOOTBALL MANAGEMENT SIMULATOR</text>
+ </g>
+ <path d="M250 205H865" stroke="#c81736" stroke-width="3" opacity=".8"/>
+</svg>
