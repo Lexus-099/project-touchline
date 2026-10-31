@@ -1,6 +1,6 @@
 # World football data pipeline
 
-This document describes the world-football database foundation and the first season-stamped real-club data package. The repository now contains one sourced top-flight pilot; it is not yet a complete worldwide database.
+This document describes the world-football database foundation and the first two season-stamped real-club data packages. The repository now contains two sourced top-flight pilots; it is not yet a complete worldwide database.
 
 ## Current project capabilities
 
@@ -8,19 +8,29 @@ The game already has a package-based world format. A package can author confeder
 
 The **worldDataManifest** schema adds source provenance and media-rights declarations to that format. It does not replace the existing entity schemas or create a second database model.
 
-## First real-club package
+## First real-club packages
 
-The repository includes `world-packs/england-premier-league-2026-27/`:
+### England — Premier League 2026/27
+
+Path: `world-packs/england-premier-league-2026-27/`
 
 - England and the Premier League 2026/27 competition definition.
 - 20 clubs in the 2026/27 Premier League.
 - Stable in-game IDs, display names, cities, short names and simplified colour pairs.
 - Source mappings and a CC0 1.0 source record for the OpenFootball 2026/27 England fixture data.
-- No club crests, player portraits, kit artwork or sponsor marks.
 
-The package is a data-only real-club baseline. It does **not** include actual first-team player or staff rosters yet; unless another roster package is installed, the existing game generation path may create players. Those generated players must not be represented as the clubs' real-world 2026/27 squads.
+### Türkiye — Süper Lig 2026/27
 
-CC0 applies to the OpenFootball dataset. It does not grant trademark rights or image rights belonging to clubs, leagues, players or other rights holders. Accordingly, the package does not include official crests, photos or copied kit artwork, and it is not an official Premier League or club licence.
+Path: `world-packs/turkey-super-lig-2026-27/`
+
+- Türkiye and the Trendyol Süper Lig 2026/27 competition definition.
+- 18 clubs listed in the OpenFootball 2026/27 Turkey fixture dataset.
+- Turkish display names, stable in-game IDs, cities, short names and simplified colour pairs.
+- Source mappings preserve the upstream OpenFootball spellings as external IDs, even when the display name uses the current Turkish federation spelling.
+
+Both packages are data-only real-club baselines. They do **not** include actual first-team player or staff rosters yet; unless another roster package is installed, the existing game generation path may create players. Those generated players must not be represented as the clubs' real-world 2026/27 squads.
+
+OpenFootball publishes the relevant football dataset under CC0 1.0. CC0 applies to the contributed data; it does not grant trademark rights or image rights belonging to clubs, leagues, players or other rights holders. Neither package includes official crests, photos, copied kit artwork or sponsor marks. The colour pairs are simplified in-game metadata, not official kit artwork. These are not official federation, league or club licences.
 
 ## Import workflow
 
@@ -48,6 +58,6 @@ When a package contains a world-data manifest, every team logo, player portrait 
 
 ## Scope and limitations
 
-The first package covers one country, one competition and 20 clubs. The repository does not yet contain a 200+ country world, complete domestic league pyramids, real player/staff rosters, national-team squads or international tournament datasets. It does not call a paid provider, store API credentials, crawl websites or download media.
+The two packages cover two countries, two top-flight competitions and 38 clubs. The repository does not yet contain a 200+ country world, complete domestic league pyramids, real player/staff rosters, national-team squads or international tournament datasets. It does not call a paid provider, store API credentials, crawl websites or download media.
 
 The worldwide target must be delivered in source-specific, season-stamped packages. Coverage should be reported per country and competition tier; the absence of a source for a lower amateur division must remain visible rather than being filled with invented real-world records.
