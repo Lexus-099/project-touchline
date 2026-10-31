@@ -6,7 +6,7 @@
       "name": "Galatasaray",
       "shortName": "GAL",
       "city": "İstanbul",
-      "country": "TUR",
+      "country": "TR",
       "colors": {
         "primary": "#A90432",
         "secondary": "#FDB913"
@@ -18,7 +18,7 @@
       "name": "Arca Çorum FK",
       "shortName": "COR",
       "city": "Çorum",
-      "country": "TUR",
+      "country": "TR",
       "colors": {
         "primary": "#C8102E",
         "secondary": "#FFFFFF"
@@ -30,7 +30,7 @@
       "name": "Konyaspor",
       "shortName": "KON",
       "city": "Konya",
-      "country": "TUR",
+      "country": "TR",
       "colors": {
         "primary": "#0B8F4D",
         "secondary": "#FFFFFF"
@@ -42,7 +42,7 @@
       "name": "Çaykur Rizespor",
       "shortName": "RIZ",
       "city": "Rize",
-      "country": "TUR",
+      "country": "TR",
       "colors": {
         "primary": "#1B8F4A",
         "secondary": "#1A4B8C"
@@ -54,7 +54,7 @@
       "name": "Kasımpaşa",
       "shortName": "KAS",
       "city": "İstanbul",
-      "country": "TUR",
+      "country": "TR",
       "colors": {
         "primary": "#1A3764",
         "secondary": "#FFFFFF"
@@ -66,7 +66,7 @@
       "name": "Trabzonspor",
       "shortName": "TRA",
       "city": "Trabzon",
-      "country": "TUR",
+      "country": "TR",
       "colors": {
         "primary": "#7A263A",
         "secondary": "#1A6AA3"
@@ -78,7 +78,7 @@
       "name": "Gaziantep FK",
       "shortName": "GFK",
       "city": "Gaziantep",
-      "country": "TUR",
+      "country": "TR",
       "colors": {
         "primary": "#111111",
         "secondary": "#D71920"
@@ -90,7 +90,7 @@
       "name": "Corendon Alanyaspor",
       "shortName": "ALA",
       "city": "Alanya",
-      "country": "TUR",
+      "country": "TR",
       "colors": {
         "primary": "#F36F21",
         "secondary": "#156B3A"
@@ -102,7 +102,7 @@
       "name": "Gençlerbirliği",
       "shortName": "GEN",
       "city": "Ankara",
-      "country": "TUR",
+      "country": "TR",
       "colors": {
         "primary": "#C8102E",
         "secondary": "#111111"
@@ -114,7 +114,7 @@
       "name": "Fenerbahçe",
       "shortName": "FB",
       "city": "İstanbul",
-      "country": "TUR",
+      "country": "TR",
       "colors": {
         "primary": "#F7C600",
         "secondary": "#14213D"
@@ -126,7 +126,7 @@
       "name": "İstanbul Başakşehir",
       "shortName": "IBFK",
       "city": "İstanbul",
-      "country": "TUR",
+      "country": "TR",
       "colors": {
         "primary": "#F36F21",
         "secondary": "#16223A"
@@ -138,7 +138,7 @@
       "name": "Kocaelispor",
       "shortName": "KOC",
       "city": "İzmit",
-      "country": "TUR",
+      "country": "TR",
       "colors": {
         "primary": "#007A4D",
         "secondary": "#111111"
@@ -150,7 +150,7 @@
       "name": "Beşiktaş",
       "shortName": "BJK",
       "city": "İstanbul",
-      "country": "TUR",
+      "country": "TR",
       "colors": {
         "primary": "#111111",
         "secondary": "#FFFFFF"
@@ -162,7 +162,7 @@
       "name": "Eyüpspor",
       "shortName": "EYP",
       "city": "İstanbul",
-      "country": "TUR",
+      "country": "TR",
       "colors": {
         "primary": "#5B2C83",
         "secondary": "#F5D547"
@@ -174,7 +174,7 @@
       "name": "Amed Sportif Faaliyetler",
       "shortName": "AMED",
       "city": "Diyarbakır",
-      "country": "TUR",
+      "country": "TR",
       "colors": {
         "primary": "#0B6B3A",
         "secondary": "#C8102E"
@@ -186,7 +186,7 @@
       "name": "Erzurumspor FK",
       "shortName": "ERZ",
       "city": "Erzurum",
-      "country": "TUR",
+      "country": "TR",
       "colors": {
         "primary": "#1C66B1",
         "secondary": "#FFFFFF"
@@ -198,7 +198,7 @@
       "name": "Samsunspor",
       "shortName": "SAM",
       "city": "Samsun",
-      "country": "TUR",
+      "country": "TR",
       "colors": {
         "primary": "#D71920",
         "secondary": "#FFFFFF"
@@ -210,7 +210,7 @@
       "name": "Göztepe",
       "shortName": "GOZ",
       "city": "İzmir",
-      "country": "TUR",
+      "country": "TR",
       "colors": {
         "primary": "#C8102E",
         "secondary": "#FDB913"
