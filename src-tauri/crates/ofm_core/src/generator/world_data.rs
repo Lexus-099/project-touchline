@@ -3,7 +3,7 @@
 //! These types sit beside the existing .ofm package schemas. They deliberately keep provider IDs
 //! separate from permanent game IDs, so provider changes cannot silently change career identities.
 
-use std::collections::{BTreeMap, HashSet};
+use std::collections::HashSet;
 
 use chrono::NaiveDate;
 use serde::{Deserialize, Serialize};
@@ -221,6 +221,16 @@ pub fn audit_world_data(
     audit.inventory.source_count = manifest.sources.len();
     audit.inventory.asset_count = manifest.assets.len();
 
+    validate_manifest_header(manifest, &mut audit);
+    let source_ids = validate_sources(manifest, &mut audit);
+    let known_entities = known_entity_ids(entities);
+    let mappings = validate_entity_mappings(manifest, &source_ids, &known_entities, &mut audit);
+    validate_unmapped_entities(entities, &mappings, &mut audit);
+    validate_assets(manifest, &source_ids, &known_entities, &mut audit);
+    audit
+}
+
+fn validate_manifest_header(manifest: &WorldDataManifest, audit: &mut WorldDataAudit) {
     if manifest.schema != WORLD_DATA_MANIFEST_SCHEMA {
         audit.push_error(
             "world-data-manifest-schema-invalid",
@@ -240,24 +250,35 @@ pub fn audit_world_data(
             None,
         );
     }
-    if let Some(date) = manifest.data_as_of.as_deref() {
-        if !is_valid_date(date) {
-            audit.push_error(
-                "world-data-date-invalid",
-                "dataAsOf must be an ISO date in YYYY-MM-DD format.",
-                None,
-                None,
-            );
-        }
-    } else {
-        audit.push_warning(
+    match manifest.data_as_of.as_deref() {
+        Some(date) if !is_valid_date(date) => audit.push_error(
+            "world-data-date-invalid",
+            "dataAsOf must be an ISO date in YYYY-MM-DD format.",
+            None,
+            None,
+        ),
+        None => audit.push_warning(
             "world-data-date-missing",
             "The manifest does not state the date represented by this dataset.",
             None,
             None,
+        ),
+        _ => {}
+    }
+    if manifest.sources.is_empty() {
+        audit.push_error(
+            "world-data-sources-missing",
+            "A populated world-data manifest must declare at least one source.",
+            None,
+            None,
         );
     }
+}
 
+fn validate_sources(
+    manifest: &WorldDataManifest,
+    audit: &mut WorldDataAudit,
+) -> HashSet<String> {
     let mut source_ids = HashSet::new();
     for source in &manifest.sources {
         if !is_slug(&source.id) {
@@ -268,7 +289,7 @@ pub fn audit_world_data(
                 None,
             );
         }
-        if !source_ids.insert(source.id.as_str()) {
+        if !source_ids.insert(source.id.clone()) {
             audit.push_error(
                 "world-data-source-id-duplicate",
                 &format!("Source ID '{}' is declared more than once.", source.id),
@@ -276,91 +297,85 @@ pub fn audit_world_data(
                 None,
             );
         }
-        if source.provider.trim().is_empty() {
-            audit.push_error(
-                "world-data-source-provider-missing",
-                &format!("Source '{}' has no provider name.", source.id),
-                None,
-                None,
-            );
-        }
-        if !is_https_url(&source.source_url) {
-            audit.push_error(
-                "world-data-source-url-invalid",
-                &format!("Source '{}' must use an absolute HTTPS URL.", source.id),
-                None,
-                None,
-            );
-        }
-        if source.license.trim().is_empty() {
-            audit.push_error(
-                "world-data-source-license-missing",
-                &format!("Source '{}' has no declared license.", source.id),
-                None,
-                None,
-            );
-        }
-        if !source.redistribution_allowed {
-            audit.push_error(
-                "world-data-source-redistribution-not-authorized",
-                &format!("Source '{}' is not marked as redistributable.", source.id),
-                None,
-                None,
-            );
-        }
-        if source.license_url.as_deref().is_some_and(|url| !is_https_url(url))
-            || source.terms_url.as_deref().is_some_and(|url| !is_https_url(url))
-        {
-            audit.push_error(
-                "world-data-source-terms-url-invalid",
-                &format!("License and terms links for '{}' must use HTTPS.", source.id),
-                None,
-                None,
-            );
-        }
-        if source.retrieved_at.as_deref().is_some_and(|date| !is_valid_date(date)) {
-            audit.push_error(
-                "world-data-source-retrieval-date-invalid",
-                &format!("Source '{}' has an invalid retrievedAt date.", source.id),
-                None,
-                None,
-            );
-        }
+        validate_source_details(source, audit);
     }
+    source_ids
+}
 
-    let known: HashSet<(WorldDataEntityKind, &str)> = entities
+fn validate_source_details(source: &WorldDataSource, audit: &mut WorldDataAudit) {
+    if source.provider.trim().is_empty() {
+        audit.push_error(
+            "world-data-source-provider-missing",
+            &format!("Source '{}' has no provider name.", source.id),
+            None,
+            None,
+        );
+    }
+    if !is_https_url(&source.source_url) {
+        audit.push_error(
+            "world-data-source-url-invalid",
+            &format!("Source '{}' must use an absolute HTTPS URL.", source.id),
+            None,
+            None,
+        );
+    }
+    if source.license.trim().is_empty() {
+        audit.push_error(
+            "world-data-source-license-missing",
+            &format!("Source '{}' has no declared license.", source.id),
+            None,
+            None,
+        );
+    }
+    if !source.redistribution_allowed {
+        audit.push_error(
+            "world-data-source-redistribution-not-authorized",
+            &format!("Source '{}' is not marked as redistributable.", source.id),
+            None,
+            None,
+        );
+    }
+    if source.license_url.as_deref().is_some_and(|url| !is_https_url(url))
+        || source.terms_url.as_deref().is_some_and(|url| !is_https_url(url))
+    {
+        audit.push_error(
+            "world-data-source-terms-url-invalid",
+            &format!("License and terms links for '{}' must use HTTPS.", source.id),
+            None,
+            None,
+        );
+    }
+    if source.retrieved_at.as_deref().is_some_and(|date| !is_valid_date(date)) {
+        audit.push_error(
+            "world-data-source-retrieval-date-invalid",
+            &format!("Source '{}' has an invalid retrievedAt date.", source.id),
+            None,
+            None,
+        );
+    }
+}
+
+fn known_entity_ids(
+    entities: &[KnownWorldEntity],
+) -> HashSet<(WorldDataEntityKind, String)> {
+    entities
         .iter()
-        .map(|entity| (entity.kind, entity.id.as_str()))
-        .collect();
+        .map(|entity| (entity.kind, entity.id.clone()))
+        .collect()
+}
+
+fn validate_entity_mappings(
+    manifest: &WorldDataManifest,
+    source_ids: &HashSet<String>,
+    known_entities: &HashSet<(WorldDataEntityKind, String)>,
+    audit: &mut WorldDataAudit,
+) -> HashSet<(WorldDataEntityKind, String)> {
     let mut mappings = HashSet::new();
     let mut upstream_ids = HashSet::new();
 
     for mapping in &manifest.entities {
-        if mapping.entity_id.trim().is_empty() || mapping.external_id.trim().is_empty() {
-            audit.push_error(
-                "world-data-entity-identity-incomplete",
-                "Every source mapping needs both entityId and externalId.",
-                Some(mapping.kind),
-                Some(mapping.entity_id.clone()),
-            );
-        }
-        if !source_ids.contains(mapping.source_id.as_str()) {
-            audit.push_error(
-                "world-data-entity-source-unknown",
-                &format!("Entity mapping references unknown source '{}'.", mapping.source_id),
-                Some(mapping.kind),
-                Some(mapping.entity_id.clone()),
-            );
-        }
-        if !known.contains(&(mapping.kind, mapping.entity_id.as_str())) {
-            audit.push_error(
-                "world-data-entity-target-unknown",
-                &format!("Source mapping targets missing entity '{}'.", mapping.entity_id),
-                Some(mapping.kind),
-                Some(mapping.entity_id.clone()),
-            );
-        }
-        if !mappings.insert((mapping.kind, mapping.entity_id.as_str())) {
+        validate_entity_mapping(mapping, source_ids, known_entities, audit);
+        if !mappings.insert((mapping.kind, mapping.entity_id.clone())) {
             audit.push_error(
                 "world-data-entity-mapping-duplicate",
                 &format!("Entity '{}' has more than one mapping entry.", mapping.entity_id),
@@ -368,7 +383,11 @@ pub fn audit_world_data(
                 Some(mapping.entity_id.clone()),
             );
         }
-        if !upstream_ids.insert((mapping.kind, mapping.source_id.as_str(), mapping.external_id.as_str())) {
+        if !upstream_ids.insert((
+            mapping.kind,
+            mapping.source_id.clone(),
+            mapping.external_id.clone(),
+        )) {
             audit.push_error(
                 "world-data-external-id-duplicate",
                 &format!(
@@ -380,13 +399,52 @@ pub fn audit_world_data(
             );
         }
     }
-
     audit.inventory.sourced_entity_count = mappings.len();
-    for entity in entities {
-        if !mappings.contains(&(entity.kind, entity.id.as_str())) {
-            audit.inventory.entities_without_source_count += 1;
-        }
+    mappings
+}
+
+fn validate_entity_mapping(
+    mapping: &WorldDataEntitySource,
+    source_ids: &HashSet<String>,
+    known_entities: &HashSet<(WorldDataEntityKind, String)>,
+    audit: &mut WorldDataAudit,
+) {
+    if mapping.entity_id.trim().is_empty() || mapping.external_id.trim().is_empty() {
+        audit.push_error(
+            "world-data-entity-identity-incomplete",
+            "Every source mapping needs both entityId and externalId.",
+            Some(mapping.kind),
+            Some(mapping.entity_id.clone()),
+        );
     }
+    if !source_ids.contains(&mapping.source_id) {
+        audit.push_error(
+            "world-data-entity-source-unknown",
+            &format!("Entity mapping references unknown source '{}'.", mapping.source_id),
+            Some(mapping.kind),
+            Some(mapping.entity_id.clone()),
+        );
+    }
+    if !known_entities.contains(&(mapping.kind, mapping.entity_id.clone())) {
+        audit.push_error(
+            "world-data-entity-target-unknown",
+            &format!("Source mapping targets missing entity '{}'.", mapping.entity_id),
+            Some(mapping.kind),
+            Some(mapping.entity_id.clone()),
+        );
+    }
+}
+
+fn validate_unmapped_entities(
+    entities: &[KnownWorldEntity],
+    mappings: &HashSet<(WorldDataEntityKind, String)>,
+    audit: &mut WorldDataAudit,
+) {
+    audit.inventory.entities_without_source_count = entities
+        .iter()
+        .filter(|entity| !mappings.contains(&(entity.kind, entity.id.clone())))
+        .count();
+
     if audit.inventory.entities_without_source_count > 0 {
         audit.push_warning(
             "world-data-entity-provenance-incomplete",
@@ -398,18 +456,18 @@ pub fn audit_world_data(
             None,
         );
     }
+}
 
+fn validate_assets(
+    manifest: &WorldDataManifest,
+    source_ids: &HashSet<String>,
+    known_entities: &HashSet<(WorldDataEntityKind, String)>,
+    audit: &mut WorldDataAudit,
+) {
     let mut asset_paths = HashSet::new();
     for asset in &manifest.assets {
-        if !is_safe_relative_path(&asset.path) {
-            audit.push_error(
-                "world-data-asset-path-unsafe",
-                &format!("Asset path '{}' is not a safe package-relative path.", asset.path),
-                Some(asset.owner_kind),
-                Some(asset.owner_id.clone()),
-            );
-        }
-        if !asset_paths.insert(asset.path.as_str()) {
+        validate_asset(asset, source_ids, known_entities, audit);
+        if !asset_paths.insert(asset.path.clone()) {
             audit.push_error(
                 "world-data-asset-path-duplicate",
                 &format!("Asset path '{}' is declared more than once.", asset.path),
@@ -417,47 +475,63 @@ pub fn audit_world_data(
                 Some(asset.owner_id.clone()),
             );
         }
-        if !source_ids.contains(asset.source_id.as_str()) {
-            audit.push_error(
-                "world-data-asset-source-unknown",
-                &format!("Asset '{}' references unknown source '{}'.", asset.path, asset.source_id),
-                Some(asset.owner_kind),
-                Some(asset.owner_id.clone()),
-            );
-        }
-        if asset.license.trim().is_empty() {
-            audit.push_error(
-                "world-data-asset-license-missing",
-                &format!("Asset '{}' has no declared license.", asset.path),
-                Some(asset.owner_kind),
-                Some(asset.owner_id.clone()),
-            );
-        }
-        if !asset.redistribution_allowed {
-            audit.inventory.assets_without_redistribution_rights += 1;
-            audit.push_error(
-                "world-data-asset-redistribution-not-authorized",
-                &format!("Asset '{}' is not marked as redistributable.", asset.path),
-                Some(asset.owner_kind),
-                Some(asset.owner_id.clone()),
-            );
-        }
-        if asset.owner_id.trim().is_empty()
-            || !known.contains(&(asset.owner_kind, asset.owner_id.as_str()))
-        {
-            audit.push_error(
-                "world-data-asset-owner-unknown",
-                &format!("Asset '{}' points to an unknown entity.", asset.path),
-                Some(asset.owner_kind),
-                Some(asset.owner_id.clone()),
-            );
-        }
         if asset.redistribution_allowed && !asset.license.trim().is_empty() {
             audit.inventory.redistributable_asset_count += 1;
         }
+        if !asset.redistribution_allowed {
+            audit.inventory.assets_without_redistribution_rights += 1;
+        }
     }
+}
 
-    audit
+fn validate_asset(
+    asset: &WorldDataAsset,
+    source_ids: &HashSet<String>,
+    known_entities: &HashSet<(WorldDataEntityKind, String)>,
+    audit: &mut WorldDataAudit,
+) {
+    if !is_safe_relative_path(&asset.path) {
+        audit.push_error(
+            "world-data-asset-path-unsafe",
+            &format!("Asset path '{}' is not a safe package-relative path.", asset.path),
+            Some(asset.owner_kind),
+            Some(asset.owner_id.clone()),
+        );
+    }
+    if !source_ids.contains(&asset.source_id) {
+        audit.push_error(
+            "world-data-asset-source-unknown",
+            &format!("Asset '{}' references unknown source '{}'.", asset.path, asset.source_id),
+            Some(asset.owner_kind),
+            Some(asset.owner_id.clone()),
+        );
+    }
+    if asset.license.trim().is_empty() {
+        audit.push_error(
+            "world-data-asset-license-missing",
+            &format!("Asset '{}' has no declared license.", asset.path),
+            Some(asset.owner_kind),
+            Some(asset.owner_id.clone()),
+        );
+    }
+    if !asset.redistribution_allowed {
+        audit.push_error(
+            "world-data-asset-redistribution-not-authorized",
+            &format!("Asset '{}' is not marked as redistributable.", asset.path),
+            Some(asset.owner_kind),
+            Some(asset.owner_id.clone()),
+        );
+    }
+    if asset.owner_id.trim().is_empty()
+        || !known_entities.contains(&(asset.owner_kind, asset.owner_id.clone()))
+    {
+        audit.push_error(
+            "world-data-asset-owner-unknown",
+            &format!("Asset '{}' points to an unknown entity.", asset.path),
+            Some(asset.owner_kind),
+            Some(asset.owner_id.clone()),
+        );
+    }
 }
 
 impl WorldDataAudit {
