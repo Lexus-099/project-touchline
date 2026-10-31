@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-labelledby="title">
+ <title id="title">PROJECT TOUCHLINE</title>
+ <rect width="256" height="256" rx="48" fill="#101722"/>
+ <circle cx="128" cy="125" r="104" fill="none" stroke="#c81736" stroke-width="12"/>
+ <path d="M65 190V59h81c37 0 58 19 58 55s-23 57-61 57H105v-35h36c18 0 27-7 27-22 0-14-9-21-27-21H101v97z" fill="#f7f8fa"/>
+ <path d="M137 139h74v26h-24v48h-27v-48h-23z" fill="#d51d3c"/>
+ <circle cx="191" cy="196" r="27" fill="#f7f8fa" stroke="#101722" stroke-width="5"/>
+ <path d="M191 179l10 8-4 12h-12l-4-12zM166 193l13-6 6 11-8 11-10-6zM216 193l-13-6-6 11 8 11 10-6z" fill="#101722"/>
+</svg>
