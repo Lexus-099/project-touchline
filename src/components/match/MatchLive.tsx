@@ -19,6 +19,7 @@ import { TeamLogo } from "../ui";
 import { useSettingsStore } from "../../store/settingsStore";
 import { EventFeed, MatchStats, Lineups } from "./MatchPanels";
 import MatchScreenLayout from "./MatchScreenLayout";
+import MatchPitchView from "./MatchPitchView";
 import { SubPanel } from "./SubPanel";
 import { applyRoleChange } from "./applyRoleChange";
 import { sendMatchCommand } from "./matchCommands";
@@ -27,6 +28,7 @@ import { type MatchPace, MatchSpeedControl } from "./MatchSpeedControl";
 import { useMatchPace } from "./useMatchPace";
 import {
   Clock,
+  Activity,
   Users,
   BarChart3,
   MessageSquare,
@@ -38,7 +40,7 @@ import {
   Flag,
 } from "lucide-react";
 
-type ActivePanel = "events" | "stats" | "lineups";
+type ActivePanel = "pitch" | "events" | "stats" | "lineups";
 
 interface MatchLiveProps {
   snapshot: MatchSnapshot;
@@ -76,7 +78,7 @@ export default function MatchLive({
     (settings.match_speed === "slow" || settings.match_speed === "fast"
       ? settings.match_speed
       : "normal");
-  const [activePanel, setActivePanel] = useState<ActivePanel>("events");
+  const [activePanel, setActivePanel] = useState<ActivePanel>("pitch");
   const { pace, isRunning, pause, togglePause, selectPace } = useMatchPace(
     initialPace,
     onPreferredSpeedChange,
@@ -383,6 +385,11 @@ export default function MatchLive({
           <div className="flex bg-white dark:bg-navy-800 border-b border-gray-200 dark:border-navy-700 transition-colors duration-300">
             {[
               {
+                id: "pitch" as ActivePanel,
+                label: t("match.pitchView"),
+                icon: <Activity className="w-4 h-4" />,
+              },
+              {
                 id: "events" as ActivePanel,
                 label: t("match.events"),
                 icon: <MessageSquare className="w-4 h-4" />,
@@ -415,6 +422,14 @@ export default function MatchLive({
           </div>
 
           <div className="flex-1 overflow-auto p-4">
+            {activePanel === "pitch" && (
+              <MatchPitchView
+                snapshot={snapshot}
+                homeColor={homeTeamColor}
+                awayColor={awayTeamColor}
+                playerJerseyMap={playerJerseyMap}
+              />
+            )}
             {activePanel === "events" && (
               <EventFeed
                 events={importantEvents}
