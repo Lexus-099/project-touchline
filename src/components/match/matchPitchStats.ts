@@ -1,7 +1,7 @@
 import type { MatchEvent } from "./types";
 
 export type MatchSide = "Home" | "Away";
-export type MatchEventFilter = "all" | "goals" | "shots" | "cards" | "substitutions";
+export type MatchEventFilter = "all" | "goals" | "shots" | "cards" | "substitutions" | "injuries";
 
 export interface TeamMatchCounts {
   goals: number;
@@ -17,6 +17,7 @@ export interface TeamMatchCounts {
   passes: number;
   interceptions: number;
   crosses: number;
+  injuries: number;
 }
 
 export interface PlayerMatchContribution {
@@ -27,6 +28,7 @@ export interface PlayerMatchContribution {
   tackles: number;
   dribbles: number;
   cards: number;
+  injuries: number;
 }
 
 const EMPTY_TEAM_COUNTS: TeamMatchCounts = {
@@ -43,6 +45,7 @@ const EMPTY_TEAM_COUNTS: TeamMatchCounts = {
   passes: 0,
   interceptions: 0,
   crosses: 0,
+  injuries: 0,
 };
 
 const EMPTY_PLAYER_CONTRIBUTION: PlayerMatchContribution = {
@@ -53,6 +56,7 @@ const EMPTY_PLAYER_CONTRIBUTION: PlayerMatchContribution = {
   tackles: 0,
   dribbles: 0,
   cards: 0,
+  injuries: 0,
 };
 
 const SHOT_EVENTS = new Set([
@@ -71,6 +75,7 @@ const EVENT_FILTERS: Record<Exclude<MatchEventFilter, "all">, ReadonlySet<string
   shots: new Set([...SHOT_EVENTS, "Goal"]),
   cards: CARD_EVENTS,
   substitutions: new Set(["Substitution"]),
+  injuries: new Set(["Injury"]),
 };
 
 /** Derive team comparison counts from the events produced by the match engine. */
@@ -127,6 +132,9 @@ export function buildMatchStats(events: readonly MatchEvent[]) {
       case "Cross":
         team.crosses += 1;
         break;
+      case "Injury":
+        team.injuries += 1;
+        break;
     }
   }
 
@@ -153,6 +161,7 @@ export function buildPlayerMatchContribution(
       if (event.event_type === "Tackle") contribution.tackles += 1;
       if (event.event_type === "Dribble") contribution.dribbles += 1;
       if (CARD_EVENTS.has(event.event_type)) contribution.cards += 1;
+      if (event.event_type === "Injury") contribution.injuries += 1;
     }
 
     if (
