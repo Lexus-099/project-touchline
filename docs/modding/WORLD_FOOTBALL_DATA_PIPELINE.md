@@ -1,12 +1,26 @@
 # World football data pipeline
 
-This document describes the first implementation slice of the world-football database work. It is intentionally a data pipeline and validation foundation, not a bundled real-world database.
+This document describes the world-football database foundation and the first season-stamped real-club data package. The repository now contains one sourced top-flight pilot; it is not yet a complete worldwide database.
 
 ## Current project capabilities
 
 The game already has a package-based world format. A package can author confederations, countries, clubs, players, staff, competitions, name pools and competition calendar metadata. Multiple packages can be composed. The package loader validates identifiers and cross references before a world is built.
 
-The new **worldDataManifest** schema adds source provenance and media-rights declarations to that format. It does not replace the existing entity schemas or create a second database model.
+The **worldDataManifest** schema adds source provenance and media-rights declarations to that format. It does not replace the existing entity schemas or create a second database model.
+
+## First real-club package
+
+The repository includes `world-packs/england-premier-league-2026-27/`:
+
+- England and the Premier League 2026/27 competition definition.
+- 20 clubs in the 2026/27 Premier League.
+- Stable in-game IDs, display names, cities, short names and simplified colour pairs.
+- Source mappings and a CC0 1.0 source record for the OpenFootball 2026/27 England fixture data.
+- No club crests, player portraits, kit artwork or sponsor marks.
+
+The package is a data-only real-club baseline. It does **not** include actual first-team player or staff rosters yet; unless another roster package is installed, the existing game generation path may create players. Those generated players must not be represented as the clubs' real-world 2026/27 squads.
+
+CC0 applies to the OpenFootball dataset. It does not grant trademark rights or image rights belonging to clubs, leagues, players or other rights holders. Accordingly, the package does not include official crests, photos or copied kit artwork, and it is not an official Premier League or club licence.
 
 ## Import workflow
 
@@ -18,28 +32,7 @@ The new **worldDataManifest** schema adds source provenance and media-rights dec
 6. Package the validated world with ofm-cli pack.
 7. Keep the package data date and provider retrieval dates current when issuing an update.
 
-Example package layout:
-
-    world-data/
-      package.json
-      world-data-sources.json
-      countries/
-        countries.json
-      teams/
-        teams.json
-      players/
-        players.json
-      staff/
-        staff.json
-      competitions/
-        competitions.json
-      assets/
-        crests/
-        players/
-        staff/
-        kits/
-
-Every definition file is schema-tagged JSON or YAML. worldDataManifest may live anywhere below the package directory and can be split into multiple manifests when packages use independent providers.
+Every definition file is schema-tagged JSON or YAML. `worldDataManifest` may live anywhere below the package directory and can be split into multiple manifests when packages use independent providers.
 
 ## Identity matching
 
@@ -53,8 +46,8 @@ The validator checks declarations, not legal facts. A URL being public, an API r
 
 When a package contains a world-data manifest, every team logo, player portrait and competition logo referenced by an entity must have a matching manifest asset entry. Existing packages with no world-data manifest continue to load for backward compatibility.
 
-## Scope and limitations of this slice
+## Scope and limitations
 
-This implementation does not ship worldwide league tables, real club/player/staff records, national-team squads, photographs, crests or kits. It does not call a paid provider, store API credentials, crawl websites, or download media. It establishes the package-level provenance, identity and rights checks needed before adding sourced datasets.
+The first package covers one country, one competition and 20 clubs. The repository does not yet contain a 200+ country world, complete domestic league pyramids, real player/staff rosters, national-team squads or international tournament datasets. It does not call a paid provider, store API credentials, crawl websites or download media.
 
-The world-wide target must be delivered in source-specific, season-stamped packages. Coverage should be reported per country and competition tier; the absence of a source for a lower amateur division must remain visible rather than being filled with invented real-world records.
+The worldwide target must be delivered in source-specific, season-stamped packages. Coverage should be reported per country and competition tier; the absence of a source for a lower amateur division must remain visible rather than being filled with invented real-world records.
