@@ -2591,7 +2591,9 @@
     "cards": "Cards",
     "shotsBlocked": "Blocked shots",
     "eventFilter": "Filter events",
-    "playerRating": "Match rating"
+    "playerRating": "Match rating",
+    "momentum": "Match momentum",
+    "momentumHint": "Attacking events by 15-minute period"
   },
   "endOfSeason": {
     "seasonComplete": "Temporada Encerrada",
