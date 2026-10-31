@@ -98,6 +98,34 @@ describe("MatchPitchView", () => {
     expect(screen.getByRole("progressbar", { name: "match.phases.FullTime" })).toBeInTheDocument();
   });
 
+
+  it("marks an injured player and exposes injury events in the filter", () => {
+    const snapshot = makeSnapshot();
+    snapshot.events = [
+      {
+        minute: 31,
+        event_type: "Injury",
+        side: "Home",
+        zone: "Midfield",
+        player_id: "p1",
+        secondary_player_id: null,
+      },
+    ];
+    render(
+      <MatchPitchView
+        snapshot={snapshot}
+        homeColor="#008844"
+        awayColor="#3344aa"
+        playerJerseyMap={new Map()}
+      />,
+    );
+
+    expect(screen.getByText("match.eventTypes.Injury")).toBeInTheDocument();
+    expect(screen.getByTitle("match.eventTypes.Injury")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "match.eventTypes.Injury" }));
+    expect(screen.getByText("match.eventTypes.Injury")).toBeInTheDocument();
+  });
+
   it("allows the bench player to open the same player profile", () => {
     const snapshot = makeSnapshot();
     snapshot.home_bench = [snapshot.home_team.players[0]];
