@@ -142,4 +142,33 @@ describe("MatchPitchView", () => {
     fireEvent.click(screen.getByRole("button", { name: /Alice/ }));
     expect(screen.getByRole("heading", { name: "Alice" })).toBeInTheDocument();
   });
+
+  it("shows player attributes when the selected player has no set-piece duty", () => {
+    renderPitch();
+    fireEvent.click(screen.getByRole("button", { name: "match.playerOverview: Alice" }));
+
+    expect(screen.getByText("match.physical")).toBeInTheDocument();
+    expect(screen.getByText("match.attacking")).toBeInTheDocument();
+  });
+
+  it("keeps every bench player selectable, including players after the fifth slot", () => {
+    const snapshot = makeSnapshot();
+    const firstPlayer = snapshot.home_team.players[0];
+    snapshot.home_bench = Array.from({ length: 6 }, (_, index) => ({
+      ...firstPlayer,
+      id: "bench-" + (index + 1),
+      name: "Bench " + (index + 1),
+    }));
+    render(
+      <MatchPitchView
+        snapshot={snapshot}
+        homeColor="#008844"
+        awayColor="#3344aa"
+        playerJerseyMap={new Map()}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: /Bench 6/ }));
+    expect(screen.getByRole("heading", { name: "Bench 6" })).toBeInTheDocument();
+  });
 });
