@@ -4,6 +4,7 @@ import type { TFunction } from "i18next";
 import type { EnginePlayerData, MatchEvent, MatchSnapshot } from "./types";
 import { buildFormationSlots } from "./FormationPitch";
 import {
+  buildMatchMomentum,
   buildMatchStats,
   buildPlayerMatchContribution,
   filterMatchEvents,
@@ -166,27 +167,10 @@ export default function MatchPitchView({
     { id: "cards", label: t("match.cards") },
     { id: "substitutions", label: t("match.substitutions") },
   ] as const;
-  const matchMomentum = useMemo(() => {
-    const periods = Array.from({ length: matchDuration / 15 }, (_, index) => ({
-      start: index * 15,
-      home: 0,
-      away: 0,
-    }));
-    const pressureEvents = new Set([
-      "Goal", "PenaltyGoal", "ShotSaved", "ShotOnTarget",
-      "ShotOffTarget", "ShotBlocked", "Corner",
-    ]);
-    for (const event of snapshot.events) {
-      if (!pressureEvents.has(event.event_type)) continue;
-      const periodIndex = Math.min(
-        periods.length - 1,
-        Math.max(0, Math.floor(Math.max(0, event.minute - 1) / 15)),
-      );
-      const period = periods[periodIndex];
-      if (period) period[event.side === "Home" ? "home" : "away"] += 1;
-    }
-    return periods;
-  }, [snapshot.events, matchDuration]);
+  const matchMomentum = useMemo(
+    () => buildMatchMomentum(snapshot.events, matchDuration),
+    [snapshot.events, matchDuration],
+  );
   const maxMomentum = Math.max(1, ...matchMomentum.map((period) => Math.max(period.home, period.away)));
   const timelineEvents = snapshot.events.filter((event) =>
     ["Goal", "PenaltyGoal", "ShotSaved", "ShotOnTarget", "ShotOffTarget", "ShotBlocked", "YellowCard", "RedCard", "SecondYellow", "Substitution"].includes(event.event_type),
