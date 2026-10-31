@@ -166,6 +166,7 @@ export default function MatchPitchView({
     { id: "shots", label: t("match.shots") },
     { id: "cards", label: t("match.cards") },
     { id: "substitutions", label: t("match.substitutions") },
+    { id: "injuries", label: t("match.eventTypes.Injury") },
   ] as const;
   const matchMomentum = useMemo(
     () => buildMatchMomentum(snapshot.events, matchDuration),
@@ -173,7 +174,7 @@ export default function MatchPitchView({
   );
   const maxMomentum = Math.max(1, ...matchMomentum.map((period) => Math.max(period.home, period.away)));
   const timelineEvents = snapshot.events.filter((event) =>
-    ["Goal", "PenaltyGoal", "ShotSaved", "ShotOnTarget", "ShotOffTarget", "ShotBlocked", "YellowCard", "RedCard", "SecondYellow", "Substitution"].includes(event.event_type),
+    ["Goal", "PenaltyGoal", "ShotSaved", "ShotOnTarget", "ShotOffTarget", "ShotBlocked", "YellowCard", "RedCard", "SecondYellow", "Substitution", "Injury"].includes(event.event_type),
   );
   const homeBench = snapshot.home_bench.slice(0, 5);
   const awayBench = snapshot.away_bench.slice(0, 5);
@@ -275,14 +276,17 @@ export default function MatchPitchView({
           const isGoal = event.event_type === "Goal" || event.event_type === "PenaltyGoal";
           const isCard = ["YellowCard", "RedCard", "SecondYellow"].includes(event.event_type);
           const isSubstitution = event.event_type === "Substitution";
+          const isInjury = event.event_type === "Injury";
           const filter: MatchEventFilter = isGoal
             ? "goals"
             : isCard
               ? "cards"
               : isSubstitution
                 ? "substitutions"
-                : "shots";
-          const marker = isGoal ? "⚽" : isSubstitution ? "↕" : isCard ? (event.event_type === "YellowCard" ? "🟨" : "🟥") : "•";
+                : isInjury
+                  ? "injuries"
+                  : "shots";
+          const marker = isGoal ? "⚽" : isSubstitution ? "↕" : isCard ? (event.event_type === "YellowCard" ? "🟨" : "🟥") : isInjury ? "✚" : "•";
           const left = (Math.min(matchDuration, Math.max(0, event.minute)) / matchDuration) * 100;
           return (
             <button
@@ -343,6 +347,7 @@ export default function MatchPitchView({
           const yellowCount = getPlayerCards(marker.player.id, marker.side);
           const selected = selectedPlayerId === marker.player.id;
           const enteredAsSub = isSubbedOn(marker.player.id);
+          const wasInjured = snapshot.events.some((event) => event.event_type === "Injury" && event.player_id === marker.player.id);
           const setPieces = marker.side === "Home" ? snapshot.home_set_pieces : snapshot.away_set_pieces;
           const duties = [
             setPieces?.captain === marker.player.id ? { code: "C", label: t("match.captain") } : null,
@@ -377,6 +382,9 @@ export default function MatchPitchView({
                 )}
                 {enteredAsSub && (
                   <span className="absolute -bottom-1 -left-1 flex h-3 w-3 items-center justify-center rounded-full border border-white bg-emerald-500 text-[8px] text-white">▲</span>
+                )}
+                {wasInjured && (
+                  <span title={t("match.eventTypes.Injury")} className="absolute -bottom-1 -right-1 flex h-3 w-3 items-center justify-center rounded-full border border-white bg-orange-500 text-[8px] font-black text-white">!</span>
                 )}
               </span>
               {showNames && (
@@ -435,6 +443,7 @@ export default function MatchPitchView({
           ["passes", t("match.passes")],
           ["interceptions", t("match.interceptions")],
           ["crosses", t("match.crosses")],
+          ["injuries", t("match.eventTypes.Injury")],
         ].map(([key, label]) => {
           const statKey = key as keyof TeamMatchCounts;
           const counts = { Home: matchCounts.Home[statKey], Away: matchCounts.Away[statKey] };
