@@ -181,8 +181,11 @@ export function filterMatchEvents(
   filter: MatchEventFilter,
   limit = 8,
 ): MatchEvent[] {
+  const safeLimit = Number.isFinite(limit) ? Math.max(0, Math.floor(limit)) : 8;
+  if (safeLimit === 0) return [];
+
   const matching = filter === "all" ? events : events.filter((event) => EVENT_FILTERS[filter].has(event.event_type));
-  return matching.slice(-Math.max(0, limit)).reverse();
+  return matching.slice(-safeLimit).reverse();
 }
 
 export interface MatchMomentumPeriod {
