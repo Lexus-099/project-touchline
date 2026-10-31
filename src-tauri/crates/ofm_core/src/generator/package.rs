@@ -2145,6 +2145,16 @@ pub fn qualify_package_asset_paths(package: &mut WorldPackage, package_id: &str)
     for player in &mut package.players {
         qualify(&mut player.photo);
     }
+    for competition in &mut package.competitions {
+        qualify(&mut competition.logo);
+    }
+    for manifest in &mut package.world_data_manifests {
+        for asset in &mut manifest.assets {
+            let mut path = Some(asset.path.clone());
+            qualify(&mut path);
+            asset.path = path.unwrap_or_default();
+        }
+    }
     if let Some(meta) = package.meta.as_mut() {
         qualify(&mut meta.logo);
     }
