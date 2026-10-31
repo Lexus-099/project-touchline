@@ -150,6 +150,14 @@ export default function MatchPitchView({
   const progressMinute = Math.min(matchDuration, Math.max(0, snapshot.current_minute));
   const matchProgress = (progressMinute / matchDuration) * 100;
   const phaseLabel = t("match.phases." + snapshot.phase, { defaultValue: snapshot.phase });
+  const homePossession = Math.max(0, Math.min(100, snapshot.home_possession_pct));
+  const awayPossession = Math.max(0, Math.min(100, snapshot.away_possession_pct));
+  const scoreState =
+    snapshot.home_score > snapshot.away_score
+      ? t("match.homeLead")
+      : snapshot.away_score > snapshot.home_score
+        ? t("match.awayLead")
+        : t("match.levelScore");
 
   const matchCounts = useMemo(() => buildMatchStats(snapshot.events), [snapshot.events]);
   const recentEvents = useMemo(
@@ -159,6 +167,21 @@ export default function MatchPitchView({
   const selectedContribution = useMemo(
     () => buildPlayerMatchContribution(snapshot.events, selectedPlayerId),
     [snapshot.events, selectedPlayerId],
+  );
+  const goalContributions = useMemo(
+    () =>
+      snapshot.events
+        .filter((event) => event.event_type === "Goal" || event.event_type === "PenaltyGoal")
+        .map((event, index) => ({
+          id: event.minute + "-" + event.event_type + "-" + index,
+          minute: event.minute,
+          scorer: event.player_id ? playerIndex.get(event.player_id)?.name ?? null : null,
+          assist: event.secondary_player_id ? playerIndex.get(event.secondary_player_id)?.name ?? null : null,
+          teamName: event.side === "Home" ? snapshot.home_team.name : snapshot.away_team.name,
+          side: event.side,
+          isPenalty: event.event_type === "PenaltyGoal",
+        })),
+    [snapshot.events, playerIndex, snapshot.home_team.name, snapshot.away_team.name],
   );
   const eventFilters = [
     { id: "all", label: t("match.events") },
@@ -225,6 +248,70 @@ export default function MatchPitchView({
 
   return (
     <section aria-label={t("match.pitchView")} className="mx-auto flex w-full max-w-6xl flex-col gap-3">
+      <div className="relative overflow-hidden rounded-2xl border border-navy-700 bg-gradient-to-br from-[#101a2b] via-[#17283c] to-[#0b1422] p-4 text-white shadow-xl">
+        <div aria-hidden="true" className="pointer-events-none absolute inset-0 opacity-30 [background:radial-gradient(circle_at_50%_0%,rgba(255,255,255,.18),transparent_58%)]" />
+        <div className="relative grid grid-cols-[1fr_auto_1fr] items-center gap-2 sm:gap-5">
+          <div className="flex min-w-0 items-center gap-2 sm:gap-3">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-white/25 text-xs font-black shadow-lg sm:h-12 sm:w-12 sm:text-sm" style={{ backgroundColor: homeColor }}>
+              {snapshot.home_team.name.split(/\\s+/).slice(0, 2).map((part) => part[0] ?? "").join("").toUpperCase()}
+            </span>
+            <div className="min-w-0">
+              <p className="truncate text-xs font-black sm:text-sm">{snapshot.home_team.name}</p>
+              <p className="truncate text-[9px] uppercase tracking-widest text-white/55">{snapshot.home_team.formation}</p>
+            </div>
+          </div>
+          <div className="flex min-w-0 flex-col items-center">
+            <div className="flex items-center gap-2 font-heading text-3xl font-black tabular-nums tracking-wider sm:gap-3 sm:text-5xl">
+              <span>{snapshot.home_score}</span>
+              <span className="text-white/35">:</span>
+              <span>{snapshot.away_score}</span>
+            </div>
+            <span className="mt-1 rounded-full border border-white/15 bg-white/10 px-2.5 py-1 text-[9px] font-bold uppercase tracking-widest text-white/80">
+              {snapshot.current_minute}' · {phaseLabel}
+            </span>
+          </div>
+          <div className="flex min-w-0 items-center justify-end gap-2 text-right sm:gap-3">
+            <div className="min-w-0">
+              <p className="truncate text-xs font-black sm:text-sm">{snapshot.away_team.name}</p>
+              <p className="truncate text-[9px] uppercase tracking-widest text-white/55">{snapshot.away_team.formation}</p>
+            </div>
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-white/25 text-xs font-black shadow-lg sm:h-12 sm:w-12 sm:text-sm" style={{ backgroundColor: awayColor }}>
+              {snapshot.away_team.name.split(/\\s+/).slice(0, 2).map((part) => part[0] ?? "").join("").toUpperCase()}
+            </span>
+          </div>
+        </div>
+        <div className="relative mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-white/10 pt-3 text-[9px] font-bold uppercase tracking-widest text-white/55">
+          <span>{snapshot.home_team.play_style} · {snapshot.away_team.play_style}</span>
+          <span className="rounded-full bg-white/10 px-2.5 py-1 text-white/85">{scoreState}</span>
+        </div>
+      </div>
+
+      {goalContributions.length > 0 && (
+        <div className="rounded-xl border border-gray-200 bg-white px-3 py-3 dark:border-navy-700 dark:bg-navy-800">
+          <div className="mb-2 flex items-center justify-between gap-2">
+            <h3 className="text-[10px] font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400">{t("match.goalContributions")}</h3>
+            <span className="text-[10px] tabular-nums text-gray-400">{goalContributions.length}</span>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {goalContributions.map((goal) => (
+              <div key={goal.id} className="flex min-w-0 items-center gap-2 rounded-lg bg-gray-50 px-2.5 py-2 dark:bg-navy-900">
+                <span className="shrink-0 text-[10px] font-black tabular-nums text-gray-500">{goal.minute}'</span>
+                <span className="h-2 w-2 shrink-0 rounded-full" style={{ backgroundColor: goal.side === "Home" ? homeColor : awayColor }} />
+                <div className="min-w-0">
+                  <p className="truncate text-[10px] font-bold text-gray-800 dark:text-gray-100">
+                    {goal.scorer ?? t("match.scorers")}
+                    {goal.isPenalty ? " · " + t("match.pen") : ""}
+                  </p>
+                  <p className="truncate text-[9px] text-gray-400">
+                    {goal.assist ? t("match.assist", { name: goal.assist }) : goal.teamName}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       <div className="flex flex-wrap items-center justify-between gap-3 px-1">
         <div className="flex flex-wrap items-center gap-4">
           {([["Home", homeColor, snapshot.home_team.name], ["Away", awayColor, snapshot.away_team.name]] as const).map(
@@ -455,9 +542,28 @@ export default function MatchPitchView({
                 <span className="text-gray-400">–</span>
                 <span style={{ color: awayColor }}>{counts.Away}</span>
               </p>
+              <div className="mt-1.5 flex h-1.5 overflow-hidden rounded-full bg-gray-100 dark:bg-navy-900" aria-hidden="true">
+                <span className="h-full transition-[width] duration-300" style={{ width: (counts.Home + counts.Away) > 0 ? (counts.Home / (counts.Home + counts.Away)) * 100 + "%" : "50%", backgroundColor: homeColor }} />
+                <span className="h-full flex-1" style={{ backgroundColor: awayColor, opacity: 0.75 }} />
+              </div>
             </div>
           );
         })}
+      </div>
+
+      <div className="rounded-xl border border-gray-200 bg-white px-4 py-3 dark:border-navy-700 dark:bg-navy-800">
+        <div className="mb-2 flex items-center justify-between gap-2">
+          <h3 className="text-[10px] font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400">{t("match.possessionSplit")}</h3>
+          <span className="text-[10px] text-gray-400">{t("match.inPossession")}: {possessionTeam}</span>
+        </div>
+        <div className="mb-2 flex items-center justify-between gap-2 text-xs font-bold tabular-nums">
+          <span className="min-w-0 truncate" style={{ color: homeColor }}>{snapshot.home_team.name} · {homePossession.toFixed(0)}%</span>
+          <span className="min-w-0 truncate text-right" style={{ color: awayColor }}>{awayPossession.toFixed(0)}% · {snapshot.away_team.name}</span>
+        </div>
+        <div className="flex h-3 w-full overflow-hidden rounded-full bg-gray-100 dark:bg-navy-900" role="img" aria-label={t("match.possessionSplit")}>
+          <span className="h-full transition-[width] duration-500" style={{ width: homePossession + "%", backgroundColor: homeColor }} />
+          <span className="h-full flex-1 transition-[width] duration-500" style={{ backgroundColor: awayColor }} />
+        </div>
       </div>
 
       <div className="rounded-xl border border-gray-200 bg-white p-3 dark:border-navy-700 dark:bg-navy-800">
@@ -578,7 +684,72 @@ export default function MatchPitchView({
             )}
           </div>
           {selectedDuties.length > 0 && (
-            <div className="mt-2 flex flex-wrap gap-1.5">
+            <div className="mt-4 grid grid-cols-1 gap-3 lg:grid-cols-2">
+            {[
+              {
+                title: t("match.physical"),
+                attributes: [
+                  [t("match.pace"), selectedPlayer.pace],
+                  [t("match.stamina"), selectedPlayer.stamina],
+                  [t("match.strength"), selectedPlayer.strength],
+                  [t("match.agility"), selectedPlayer.agility],
+                ],
+              },
+              {
+                title: t("match.attacking"),
+                attributes: [
+                  [t("match.passing"), selectedPlayer.passing],
+                  [t("match.shooting"), selectedPlayer.shooting],
+                  [t("match.dribbling"), selectedPlayer.dribbling],
+                  [t("match.vision"), selectedPlayer.vision],
+                  [t("match.aerial"), selectedPlayer.aerial],
+                ],
+              },
+              {
+                title: t("match.defending"),
+                attributes: [
+                  [t("match.tackling"), selectedPlayer.tackling],
+                  [t("match.defendingSkill"), selectedPlayer.defending],
+                  [t("match.positioning"), selectedPlayer.positioning],
+                  [t("match.aggression"), selectedPlayer.aggression],
+                ],
+              },
+              {
+                title: t("match.mental"),
+                attributes: [
+                  [t("match.decisions"), selectedPlayer.decisions],
+                  [t("match.composure"), selectedPlayer.composure],
+                  [t("match.teamwork"), selectedPlayer.teamwork],
+                  [t("match.leadership"), selectedPlayer.leadership],
+                ],
+              },
+              {
+                title: t("match.goalkeeping"),
+                attributes: [
+                  [t("match.handling"), selectedPlayer.handling],
+                  [t("match.reflexes"), selectedPlayer.reflexes],
+                ],
+              },
+            ].map((group) => (
+              <div key={group.title} className="rounded-xl border border-gray-100 bg-gray-50 p-3 dark:border-navy-700 dark:bg-navy-900/70">
+                <h4 className="mb-2 text-[9px] font-black uppercase tracking-widest text-gray-500 dark:text-gray-400">{group.title}</h4>
+                <div className="grid grid-cols-1 gap-x-4 gap-y-2 sm:grid-cols-2">
+                  {group.attributes.map(([label, value]) => (
+                    <div key={String(label)} className="min-w-0">
+                      <div className="mb-1 flex items-center justify-between gap-2 text-[9px]">
+                        <span className="truncate text-gray-600 dark:text-gray-300">{label}</span>
+                        <strong className="tabular-nums text-gray-800 dark:text-gray-100">{value}</strong>
+                      </div>
+                      <div className="h-1.5 overflow-hidden rounded-full bg-gray-200 dark:bg-navy-700" role="meter" aria-label={String(label)} aria-valuemin={0} aria-valuemax={100} aria-valuenow={Number(value)}>
+                        <div className="h-full rounded-full bg-gradient-to-r from-primary-500 to-emerald-400" style={{ width: Math.max(0, Math.min(100, Number(value))) + "%" }} />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="mt-2 flex flex-wrap gap-1.5">
               {selectedDuties.map((duty) => (
                 <span key={duty} className="rounded-full bg-amber-100 px-2 py-1 text-[9px] font-semibold text-amber-900 dark:bg-amber-900/40 dark:text-amber-200">{duty}</span>
               ))}
@@ -604,6 +775,16 @@ export default function MatchPitchView({
             {getPlayerCards(selectedPlayer.id, selectedSide) > 0 && (
               <span className="rounded-full bg-amber-100 px-2 py-1 text-[9px] font-semibold text-amber-800 dark:bg-amber-900/40 dark:text-amber-200">
                 {t("match.yellowCards")}: {getPlayerCards(selectedPlayer.id, selectedSide)}
+              </span>
+            )}
+            {selectedContribution.injuries > 0 && (
+              <span className="rounded-full bg-orange-100 px-2 py-1 text-[9px] font-semibold text-orange-800 dark:bg-orange-900/40 dark:text-orange-200">
+                {t("match.eventTypes.Injury")}: {selectedContribution.injuries}
+              </span>
+            )}
+            {sentOff.includes(selectedPlayer.id) && (
+              <span className="rounded-full bg-red-100 px-2 py-1 text-[9px] font-semibold text-red-800 dark:bg-red-900/40 dark:text-red-200">
+                {t("match.sentOff")}
               </span>
             )}
           </div>
