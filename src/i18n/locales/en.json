@@ -2607,7 +2607,18 @@
     "resume": "Resume",
     "pausedResumesAt": "Paused · resumes at {{speed}}",
     "playingAt": "Playing at {{speed}}",
-    "spaceKey": "Space"
+    "spaceKey": "Space",
+    "pitchView": "Match Pitch",
+    "inPossession": "In possession",
+    "ballZone": "Ball zone",
+    "pitchHint": "Player markers show each team's formation. The ball marker follows the match engine's current zone.",
+    "ballZones": {
+      "HomeBox": "Home penalty area",
+      "HomeDefense": "Home defensive third",
+      "Midfield": "Midfield",
+      "AwayDefense": "Away defensive third",
+      "AwayBox": "Away penalty area"
+    }
   },
   "endOfSeason": {
     "seasonComplete": "Season Complete",
