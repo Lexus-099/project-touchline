@@ -149,7 +149,7 @@ export default function MatchPitchView({
             .map((part) => part[0] ?? "")
             .join("")
             .toUpperCase();
-          const shortName = marker.player.name.trim().split(/\s+/).slice(-1)[0];
+          const shortName = marker.player.name.trim().split(/\s+/).slice(-1)[0] ?? marker.player.name;
 
           return (
             <div
