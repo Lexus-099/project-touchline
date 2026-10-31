@@ -253,7 +253,7 @@ export default function MatchPitchView({
         <div className="relative grid grid-cols-[1fr_auto_1fr] items-center gap-2 sm:gap-5">
           <div className="flex min-w-0 items-center gap-2 sm:gap-3">
             <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-white/25 text-xs font-black shadow-lg sm:h-12 sm:w-12 sm:text-sm" style={{ backgroundColor: homeColor }}>
-              {snapshot.home_team.name.split(/\\s+/).slice(0, 2).map((part) => part[0] ?? "").join("").toUpperCase()}
+              {snapshot.home_team.name.split(/\s+/).slice(0, 2).map((part) => part[0] ?? "").join("").toUpperCase()}
             </span>
             <div className="min-w-0">
               <p className="truncate text-xs font-black sm:text-sm">{snapshot.home_team.name}</p>
@@ -276,7 +276,7 @@ export default function MatchPitchView({
               <p className="truncate text-[9px] uppercase tracking-widest text-white/55">{snapshot.away_team.formation}</p>
             </div>
             <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-white/25 text-xs font-black shadow-lg sm:h-12 sm:w-12 sm:text-sm" style={{ backgroundColor: awayColor }}>
-              {snapshot.away_team.name.split(/\\s+/).slice(0, 2).map((part) => part[0] ?? "").join("").toUpperCase()}
+              {snapshot.away_team.name.split(/\s+/).slice(0, 2).map((part) => part[0] ?? "").join("").toUpperCase()}
             </span>
           </div>
         </div>
