@@ -199,8 +199,8 @@ export default function MatchPitchView({
   const timelineEvents = snapshot.events.filter((event) =>
     ["Goal", "PenaltyGoal", "ShotSaved", "ShotOnTarget", "ShotOffTarget", "ShotBlocked", "YellowCard", "RedCard", "SecondYellow", "Substitution", "Injury"].includes(event.event_type),
   );
-  const homeBench = snapshot.home_bench.slice(0, 5);
-  const awayBench = snapshot.away_bench.slice(0, 5);
+  const homeBench = snapshot.home_bench;
+  const awayBench = snapshot.away_bench;
   const homeOnPitch = markers.filter((marker) => marker.side === "Home").length;
   const awayOnPitch = markers.filter((marker) => marker.side === "Away").length;
   const homeSubsUsed = snapshot.home_subs_made;
@@ -683,7 +683,6 @@ export default function MatchPitchView({
               </div>
             )}
           </div>
-          {selectedDuties.length > 0 && (
             <div className="mt-4 grid grid-cols-1 gap-3 lg:grid-cols-2">
             {[
               {
@@ -749,6 +748,7 @@ export default function MatchPitchView({
               </div>
             ))}
           </div>
+          {selectedDuties.length > 0 && (
           <div className="mt-2 flex flex-wrap gap-1.5">
               {selectedDuties.map((duty) => (
                 <span key={duty} className="rounded-full bg-amber-100 px-2 py-1 text-[9px] font-semibold text-amber-900 dark:bg-amber-900/40 dark:text-amber-200">{duty}</span>
