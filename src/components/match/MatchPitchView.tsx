@@ -166,6 +166,31 @@ export default function MatchPitchView({
     { id: "cards", label: t("match.cards") },
     { id: "substitutions", label: t("match.substitutions") },
   ] as const;
+  const matchMomentum = useMemo(() => {
+    const periods = Array.from({ length: matchDuration / 15 }, (_, index) => ({
+      start: index * 15,
+      home: 0,
+      away: 0,
+    }));
+    const pressureEvents = new Set([
+      "Goal", "PenaltyGoal", "ShotSaved", "ShotOnTarget",
+      "ShotOffTarget", "ShotBlocked", "Corner",
+    ]);
+    for (const event of snapshot.events) {
+      if (!pressureEvents.has(event.event_type)) continue;
+      const periodIndex = Math.min(
+        periods.length - 1,
+        Math.max(0, Math.floor(Math.max(0, event.minute - 1) / 15)),
+      );
+      const period = periods[periodIndex];
+      if (period) period[event.side === "Home" ? "home" : "away"] += 1;
+    }
+    return periods;
+  }, [snapshot.events, matchDuration]);
+  const maxMomentum = Math.max(1, ...matchMomentum.map((period) => Math.max(period.home, period.away)));
+  const timelineEvents = snapshot.events.filter((event) =>
+    ["Goal", "PenaltyGoal", "ShotSaved", "ShotOnTarget", "ShotOffTarget", "ShotBlocked", "YellowCard", "RedCard", "SecondYellow", "Substitution"].includes(event.event_type),
+  );
   const homeBench = snapshot.home_bench.slice(0, 5);
   const awayBench = snapshot.away_bench.slice(0, 5);
   const homeOnPitch = markers.filter((marker) => marker.side === "Home").length;
@@ -248,18 +273,47 @@ export default function MatchPitchView({
         <span>{phaseLabel}</span>
         <span className="tabular-nums">{progressMinute}' / {matchDuration}'</span>
       </div>
-      <div
-        className="relative h-2 overflow-hidden rounded-full bg-gray-200 dark:bg-navy-700"
-        role="progressbar"
-        aria-label={phaseLabel}
-        aria-valuemin={0}
-        aria-valuemax={matchDuration}
-        aria-valuenow={progressMinute}
-      >
-        <div className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-primary-500 transition-[width] duration-500" style={{ width: matchProgress + "%" }} />
-        {[25, 50, 75].map((mark) => (
-          <span key={mark} aria-hidden="true" className="absolute top-0 h-full w-px bg-white/80" style={{ left: mark + "%" }} />
-        ))}
+      <div className="relative">
+        <div
+          className="relative h-2 rounded-full bg-gray-200 dark:bg-navy-700"
+          role="progressbar"
+          aria-label={phaseLabel}
+          aria-valuemin={0}
+          aria-valuemax={matchDuration}
+          aria-valuenow={progressMinute}
+        >
+          <div className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-primary-500 transition-[width] duration-500" style={{ width: matchProgress + "%" }} />
+          {[25, 50, 75].map((mark) => (
+            <span key={mark} aria-hidden="true" className="absolute top-0 h-full w-px bg-white/80" style={{ left: mark + "%" }} />
+          ))}
+        </div>
+        {timelineEvents.map((event, index) => {
+          const isGoal = event.event_type === "Goal" || event.event_type === "PenaltyGoal";
+          const isCard = ["YellowCard", "RedCard", "SecondYellow"].includes(event.event_type);
+          const isSubstitution = event.event_type === "Substitution";
+          const filter: MatchEventFilter = isGoal
+            ? "goals"
+            : isCard
+              ? "cards"
+              : isSubstitution
+                ? "substitutions"
+                : "shots";
+          const marker = isGoal ? "⚽" : isSubstitution ? "↕" : isCard ? (event.event_type === "YellowCard" ? "🟨" : "🟥") : "•";
+          const left = (Math.min(matchDuration, Math.max(0, event.minute)) / matchDuration) * 100;
+          return (
+            <button
+              type="button"
+              key={event.minute + "-" + event.event_type + "-" + index}
+              title={event.minute + "' · " + eventLabel(event, t)}
+              aria-label={event.minute + "' · " + eventLabel(event, t)}
+              onClick={() => setEventFilter(filter)}
+              className="absolute top-1/2 z-10 flex h-5 w-5 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-white bg-white text-[9px] shadow hover:scale-125 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+              style={{ left: left + "%" }}
+            >
+              {marker}
+            </button>
+          );
+        })}
       </div>
       <div className="relative isolate mx-auto aspect-[16/9] min-h-[330px] w-full overflow-hidden rounded-2xl border border-white/15 bg-gradient-to-b from-[#277e4d] via-[#1d7042] to-[#165d38] shadow-xl">
         {Array.from({ length: 6 }, (_, index) => (
@@ -411,6 +465,38 @@ export default function MatchPitchView({
             </div>
           );
         })}
+      </div>
+
+      <div className="rounded-xl border border-gray-200 bg-white p-3 dark:border-navy-700 dark:bg-navy-800">
+        <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <h3 className="text-[10px] font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400">{t("match.momentum")}</h3>
+            <p className="text-[9px] text-gray-400">{t("match.momentumHint")}</p>
+          </div>
+          <div className="flex gap-3 text-[9px] font-semibold text-gray-500 dark:text-gray-400">
+            <span className="flex items-center gap-1"><i className="h-2 w-2 rounded-sm" style={{ backgroundColor: homeColor }} />{snapshot.home_team.name}</span>
+            <span className="flex items-center gap-1"><i className="h-2 w-2 rounded-sm" style={{ backgroundColor: awayColor }} />{snapshot.away_team.name}</span>
+          </div>
+        </div>
+        <div className="grid grid-cols-6 gap-2 sm:grid-cols-8">
+          {matchMomentum.map((period) => (
+            <div key={period.start} className="flex min-w-0 flex-col items-center gap-1">
+              <div className="flex h-12 w-full items-end justify-center gap-1 rounded-t-md bg-gray-50 px-1 dark:bg-navy-900">
+                <span
+                  title={snapshot.home_team.name + ": " + period.home}
+                  className="min-h-[2px] w-2.5 rounded-t-sm transition-[height] duration-300"
+                  style={{ height: Math.max(3, (period.home / maxMomentum) * 100) + "%", backgroundColor: homeColor }}
+                />
+                <span
+                  title={snapshot.away_team.name + ": " + period.away}
+                  className="min-h-[2px] w-2.5 rounded-t-sm transition-[height] duration-300"
+                  style={{ height: Math.max(3, (period.away / maxMomentum) * 100) + "%", backgroundColor: awayColor }}
+                />
+              </div>
+              <span className="text-[9px] tabular-nums text-gray-400">{period.start}–{period.start + 15}'</span>
+            </div>
+          ))}
+        </div>
       </div>
 
       <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-gray-200 bg-white px-4 py-3 dark:border-navy-700 dark:bg-navy-800">
