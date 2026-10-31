@@ -954,13 +954,6 @@ fn validate_world_data_manifests(package: &WorldPackage) -> Vec<PackageError> {
         }
     }
     errors.extend(validate_package_media_declarations(package));
-    if package.world_data_manifests.len() > 1 {
-        errors.push(
-            PackageError::new(INVALID_ENTITY, "")
-                .with("schema", "worldDataManifest")
-                .with("detail", "A package may declare only one world-data manifest."),
-        );
-    }
     errors
 }
 
