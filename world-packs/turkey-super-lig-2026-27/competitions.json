@@ -6,7 +6,7 @@
       "name": "Trendyol Süper Lig",
       "type": "League",
       "scope": "Domestic",
-      "countryId": "TUR",
+      "countryId": "TR",
       "priority": 0,
       "format": {
         "kind": "LeagueTable",
@@ -15,7 +15,7 @@
       "participants": {
         "selector": {
           "kind": "allInCountry",
-          "country": "TUR"
+          "country": "TR"
         }
       },
       "berths": [],
