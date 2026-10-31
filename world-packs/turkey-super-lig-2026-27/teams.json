@@ -1,0 +1,221 @@
+{
+  "schema": "team",
+  "items": [
+    {
+      "id": "galatasaray",
+      "name": "Galatasaray",
+      "shortName": "GAL",
+      "city": "İstanbul",
+      "country": "TUR",
+      "colors": {
+        "primary": "#A90432",
+        "secondary": "#FDB913"
+      },
+      "playStyle": "Balanced"
+    },
+    {
+      "id": "arca-corum-fk",
+      "name": "Arca Çorum FK",
+      "shortName": "COR",
+      "city": "Çorum",
+      "country": "TUR",
+      "colors": {
+        "primary": "#C8102E",
+        "secondary": "#FFFFFF"
+      },
+      "playStyle": "Balanced"
+    },
+    {
+      "id": "konyaspor",
+      "name": "Konyaspor",
+      "shortName": "KON",
+      "city": "Konya",
+      "country": "TUR",
+      "colors": {
+        "primary": "#0B8F4D",
+        "secondary": "#FFFFFF"
+      },
+      "playStyle": "Balanced"
+    },
+    {
+      "id": "caykur-rizespor",
+      "name": "Çaykur Rizespor",
+      "shortName": "RIZ",
+      "city": "Rize",
+      "country": "TUR",
+      "colors": {
+        "primary": "#1B8F4A",
+        "secondary": "#1A4B8C"
+      },
+      "playStyle": "Balanced"
+    },
+    {
+      "id": "kasimpasa",
+      "name": "Kasımpaşa",
+      "shortName": "KAS",
+      "city": "İstanbul",
+      "country": "TUR",
+      "colors": {
+        "primary": "#1A3764",
+        "secondary": "#FFFFFF"
+      },
+      "playStyle": "Balanced"
+    },
+    {
+      "id": "trabzonspor",
+      "name": "Trabzonspor",
+      "shortName": "TRA",
+      "city": "Trabzon",
+      "country": "TUR",
+      "colors": {
+        "primary": "#7A263A",
+        "secondary": "#1A6AA3"
+      },
+      "playStyle": "Balanced"
+    },
+    {
+      "id": "gaziantep-fk",
+      "name": "Gaziantep FK",
+      "shortName": "GFK",
+      "city": "Gaziantep",
+      "country": "TUR",
+      "colors": {
+        "primary": "#111111",
+        "secondary": "#D71920"
+      },
+      "playStyle": "Balanced"
+    },
+    {
+      "id": "corendon-alanyaspor",
+      "name": "Corendon Alanyaspor",
+      "shortName": "ALA",
+      "city": "Alanya",
+      "country": "TUR",
+      "colors": {
+        "primary": "#F36F21",
+        "secondary": "#156B3A"
+      },
+      "playStyle": "Balanced"
+    },
+    {
+      "id": "genclerbirligi",
+      "name": "Gençlerbirliği",
+      "shortName": "GEN",
+      "city": "Ankara",
+      "country": "TUR",
+      "colors": {
+        "primary": "#C8102E",
+        "secondary": "#111111"
+      },
+      "playStyle": "Balanced"
+    },
+    {
+      "id": "fenerbahce",
+      "name": "Fenerbahçe",
+      "shortName": "FB",
+      "city": "İstanbul",
+      "country": "TUR",
+      "colors": {
+        "primary": "#F7C600",
+        "secondary": "#14213D"
+      },
+      "playStyle": "Balanced"
+    },
+    {
+      "id": "istanbul-basaksehir",
+      "name": "İstanbul Başakşehir",
+      "shortName": "IBFK",
+      "city": "İstanbul",
+      "country": "TUR",
+      "colors": {
+        "primary": "#F36F21",
+        "secondary": "#16223A"
+      },
+      "playStyle": "Balanced"
+    },
+    {
+      "id": "kocaelispor",
+      "name": "Kocaelispor",
+      "shortName": "KOC",
+      "city": "İzmit",
+      "country": "TUR",
+      "colors": {
+        "primary": "#007A4D",
+        "secondary": "#111111"
+      },
+      "playStyle": "Balanced"
+    },
+    {
+      "id": "besiktas",
+      "name": "Beşiktaş",
+      "shortName": "BJK",
+      "city": "İstanbul",
+      "country": "TUR",
+      "colors": {
+        "primary": "#111111",
+        "secondary": "#FFFFFF"
+      },
+      "playStyle": "Balanced"
+    },
+    {
+      "id": "eyupspor",
+      "name": "Eyüpspor",
+      "shortName": "EYP",
+      "city": "İstanbul",
+      "country": "TUR",
+      "colors": {
+        "primary": "#5B2C83",
+        "secondary": "#F5D547"
+      },
+      "playStyle": "Balanced"
+    },
+    {
+      "id": "amed-sportif-faaliyetler",
+      "name": "Amed Sportif Faaliyetler",
+      "shortName": "AMED",
+      "city": "Diyarbakır",
+      "country": "TUR",
+      "colors": {
+        "primary": "#0B6B3A",
+        "secondary": "#C8102E"
+      },
+      "playStyle": "Balanced"
+    },
+    {
+      "id": "erzurumspor-fk",
+      "name": "Erzurumspor FK",
+      "shortName": "ERZ",
+      "city": "Erzurum",
+      "country": "TUR",
+      "colors": {
+        "primary": "#1C66B1",
+        "secondary": "#FFFFFF"
+      },
+      "playStyle": "Balanced"
+    },
+    {
+      "id": "samsunspor",
+      "name": "Samsunspor",
+      "shortName": "SAM",
+      "city": "Samsun",
+      "country": "TUR",
+      "colors": {
+        "primary": "#D71920",
+        "secondary": "#FFFFFF"
+      },
+      "playStyle": "Balanced"
+    },
+    {
+      "id": "goztepe",
+      "name": "Göztepe",
+      "shortName": "GOZ",
+      "city": "İzmir",
+      "country": "TUR",
+      "colors": {
+        "primary": "#C8102E",
+        "secondary": "#FDB913"
+      },
+      "playStyle": "Balanced"
+    }
+  ]
+}
