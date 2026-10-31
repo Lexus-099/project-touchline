@@ -2,9 +2,9 @@
   "schema": "country",
   "items": [
     {
-      "id": "TUR",
+      "id": "TR",
       "name": "Türkiye",
-      "confederation": ""
+      "confederation": "europe"
     }
   ]
 }
