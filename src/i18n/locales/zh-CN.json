@@ -2648,7 +2648,9 @@
     "recentActions": "Recent match events",
     "playersOnPitch": "Players on pitch: Home {{home}} · Away {{away}}",
     "shotsOffTarget": "Shots off target",
-    "substitutionHistory": "Substitution history"
+    "substitutionHistory": "Substitution history",
+    "momentum": "Match momentum",
+    "momentumHint": "Attacking events by 15-minute period"
   },
   "endOfSeason": {
     "seasonComplete": "赛季结束",
