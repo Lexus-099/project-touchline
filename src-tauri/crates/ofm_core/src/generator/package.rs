@@ -20,6 +20,10 @@ use domain::staff::{CoachingSpecialization, StaffAttributes, StaffRole};
 use super::authored_player::{
     authored_player_errors, invalid_date_of_birth_error, is_valid_date_of_birth,
 };
+use super::world_data::{
+    KnownWorldEntity, WorldDataEntityKind, WorldDataManifest, WorldDataIssueSeverity,
+    audit_world_data,
+};
 use super::{CompetitionDefinition, NamesDefinition, TeamDef};
 
 // ---------------------------------------------------------------------------
@@ -312,6 +316,8 @@ pub struct WorldPackage {
     pub players: Vec<PlayerDef>,
     pub staff: Vec<StaffDef>,
     pub competitions: Vec<CompetitionDefinition>,
+    /// Optional provenance and media-rights manifests for imported real-world datasets.
+    pub world_data_manifests: Vec<WorldDataManifest>,
     pub names: Option<NamesDefinition>,
     /// The file each country's name pool came from, to notice a country given twice.
     name_pool_files: std::collections::HashMap<String, String>,
@@ -629,6 +635,12 @@ fn classify_entity(
                 package.competitions.push(def);
             }
         }
+        "worldDataManifest" => {
+            if let Some(def) = parse_entity::<WorldDataManifest>(value, file, schema, errors) {
+                package.remember(schema, file);
+                package.world_data_manifests.push(def);
+            }
+        }
         "names" => {
             if let Some(def) = parse_entity::<NamesDefinition>(value, file, schema, errors) {
                 add_name_pools(package, def, file);
@@ -892,6 +904,62 @@ pub fn validate_package(package: &WorldPackage) -> Vec<PackageError> {
     let mut errors = validate_format_version(package);
     errors.extend(validate_manifest(package));
     errors.extend(validate_references(package));
+    errors.extend(validate_world_data_manifests(package));
+    errors
+}
+
+/// Validate declared provenance and redistribution rights with the shared world-data auditor.
+fn validate_world_data_manifests(package: &WorldPackage) -> Vec<PackageError> {
+    if package.world_data_manifests.is_empty() {
+        return Vec::new();
+    }
+    let mut known_entities = Vec::new();
+    known_entities.extend(package.confederations.iter().map(|entity| KnownWorldEntity {
+        kind: WorldDataEntityKind::Confederation,
+        id: entity.id.clone(),
+    }));
+    known_entities.extend(package.countries.iter().map(|entity| KnownWorldEntity {
+        kind: WorldDataEntityKind::Country,
+        id: entity.id.clone(),
+    }));
+    known_entities.extend(package.teams.iter().map(|entity| KnownWorldEntity {
+        kind: WorldDataEntityKind::Club,
+        id: entity.id.clone(),
+    }));
+    known_entities.extend(package.players.iter().map(|entity| KnownWorldEntity {
+        kind: WorldDataEntityKind::Player,
+        id: entity.id.clone(),
+    }));
+    known_entities.extend(package.staff.iter().map(|entity| KnownWorldEntity {
+        kind: WorldDataEntityKind::Staff,
+        id: entity.id.clone(),
+    }));
+    known_entities.extend(package.competitions.iter().map(|entity| KnownWorldEntity {
+        kind: WorldDataEntityKind::Competition,
+        id: entity.id.clone(),
+    }));
+
+    let mut errors = Vec::new();
+    for (index, manifest) in package.world_data_manifests.iter().enumerate() {
+        let audit = audit_world_data(Some(manifest), &known_entities);
+        let file = package.source_at("worldDataManifest", index);
+        for issue in audit.issues {
+            if issue.severity == WorldDataIssueSeverity::Error {
+                errors.push(
+                    PackageError::new(INVALID_ENTITY, &file)
+                        .with("schema", "worldDataManifest")
+                        .with("detail", issue.message),
+                );
+            }
+        }
+    }
+    if package.world_data_manifests.len() > 1 {
+        errors.push(
+            PackageError::new(INVALID_ENTITY, "")
+                .with("schema", "worldDataManifest")
+                .with("detail", "A package may declare only one world-data manifest."),
+        );
+    }
     errors
 }
 
@@ -1777,6 +1845,7 @@ pub fn merge_world_packages(packages: Vec<WorldPackage>) -> (WorldPackage, Vec<P
                 None => merged_names = Some(names),
             }
         }
+        merged.world_data_manifests.extend(package.world_data_manifests);
         // A repeat inside one package is that package's own mistake and travels with it; a later
         // package replacing an earlier one's pool is stacking, and is not recorded.
         merged
