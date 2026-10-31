@@ -223,7 +223,7 @@ export default function DashboardSidebar({
             >
               <div className={`flex items-center ${rail ? "justify-center" : "gap-2"}`}>
                 <div className="w-8 h-8 flex items-center justify-center">
-                  <img src="../../openfootball.svg" alt={appName} className="w-8 h-8" />
+                  <img src="/project-touchline-icon.svg" alt={appName} className="w-8 h-8" />
                 </div>
                 {rail ? null : (
                   <div>
