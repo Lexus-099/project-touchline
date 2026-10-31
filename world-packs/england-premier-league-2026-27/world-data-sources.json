@@ -1,0 +1,152 @@
+{
+  "schema": "worldDataManifest",
+  "formatVersion": 1,
+  "dataAsOf": "2026-10-31",
+  "sources": [
+    {
+      "id": "openfootball-england-2026-27",
+      "provider": "OpenFootball",
+      "sourceUrl": "https://github.com/openfootball/england/blob/master/2026-27/1-premierleague.txt",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://github.com/openfootball/england/blob/master/LICENSE.md",
+      "attribution": "OpenFootball contributors; English Premier League 2026/27 season fixture data.",
+      "retrievedAt": "2026-10-31",
+      "redistributionAllowed": true
+    }
+  ],
+  "entities": [
+    {
+      "kind": "country",
+      "entityId": "ENG",
+      "sourceId": "openfootball-england-2026-27",
+      "externalId": "England"
+    },
+    {
+      "kind": "competition",
+      "entityId": "eng-premier-league-2026-27",
+      "sourceId": "openfootball-england-2026-27",
+      "externalId": "English Premier League 2026/27"
+    },
+    {
+      "kind": "club",
+      "entityId": "afc-bournemouth",
+      "sourceId": "openfootball-england-2026-27",
+      "externalId": "AFC Bournemouth"
+    },
+    {
+      "kind": "club",
+      "entityId": "arsenal",
+      "sourceId": "openfootball-england-2026-27",
+      "externalId": "Arsenal FC"
+    },
+    {
+      "kind": "club",
+      "entityId": "aston-villa",
+      "sourceId": "openfootball-england-2026-27",
+      "externalId": "Aston Villa FC"
+    },
+    {
+      "kind": "club",
+      "entityId": "brentford",
+      "sourceId": "openfootball-england-2026-27",
+      "externalId": "Brentford FC"
+    },
+    {
+      "kind": "club",
+      "entityId": "brighton-and-hove-albion",
+      "sourceId": "openfootball-england-2026-27",
+      "externalId": "Brighton & Hove Albion FC"
+    },
+    {
+      "kind": "club",
+      "entityId": "chelsea",
+      "sourceId": "openfootball-england-2026-27",
+      "externalId": "Chelsea FC"
+    },
+    {
+      "kind": "club",
+      "entityId": "coventry-city",
+      "sourceId": "openfootball-england-2026-27",
+      "externalId": "Coventry City FC"
+    },
+    {
+      "kind": "club",
+      "entityId": "crystal-palace",
+      "sourceId": "openfootball-england-2026-27",
+      "externalId": "Crystal Palace FC"
+    },
+    {
+      "kind": "club",
+      "entityId": "everton",
+      "sourceId": "openfootball-england-2026-27",
+      "externalId": "Everton FC"
+    },
+    {
+      "kind": "club",
+      "entityId": "fulham",
+      "sourceId": "openfootball-england-2026-27",
+      "externalId": "Fulham FC"
+    },
+    {
+      "kind": "club",
+      "entityId": "hull-city",
+      "sourceId": "openfootball-england-2026-27",
+      "externalId": "Hull City AFC"
+    },
+    {
+      "kind": "club",
+      "entityId": "ipswich-town",
+      "sourceId": "openfootball-england-2026-27",
+      "externalId": "Ipswich Town FC"
+    },
+    {
+      "kind": "club",
+      "entityId": "leeds-united",
+      "sourceId": "openfootball-england-2026-27",
+      "externalId": "Leeds United FC"
+    },
+    {
+      "kind": "club",
+      "entityId": "liverpool",
+      "sourceId": "openfootball-england-2026-27",
+      "externalId": "Liverpool FC"
+    },
+    {
+      "kind": "club",
+      "entityId": "manchester-city",
+      "sourceId": "openfootball-england-2026-27",
+      "externalId": "Manchester City FC"
+    },
+    {
+      "kind": "club",
+      "entityId": "manchester-united",
+      "sourceId": "openfootball-england-2026-27",
+      "externalId": "Manchester United FC"
+    },
+    {
+      "kind": "club",
+      "entityId": "newcastle-united",
+      "sourceId": "openfootball-england-2026-27",
+      "externalId": "Newcastle United FC"
+    },
+    {
+      "kind": "club",
+      "entityId": "nottingham-forest",
+      "sourceId": "openfootball-england-2026-27",
+      "externalId": "Nottingham Forest FC"
+    },
+    {
+      "kind": "club",
+      "entityId": "sunderland",
+      "sourceId": "openfootball-england-2026-27",
+      "externalId": "Sunderland AFC"
+    },
+    {
+      "kind": "club",
+      "entityId": "tottenham-hotspur",
+      "sourceId": "openfootball-england-2026-27",
+      "externalId": "Tottenham Hotspur FC"
+    }
+  ],
+  "assets": []
+}

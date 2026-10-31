@@ -1,0 +1,140 @@
+{
+  "schema": "worldDataManifest",
+  "formatVersion": 1,
+  "dataAsOf": "2026-10-31",
+  "sources": [
+    {
+      "id": "openfootball-europe-turkey-2026-27",
+      "provider": "OpenFootball",
+      "sourceUrl": "https://github.com/openfootball/europe/blob/master/turkey/2026-27_tr1.txt",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://github.com/openfootball/europe/blob/master/LICENSE.md",
+      "attribution": "OpenFootball contributors; Turkey Süper Lig 2026/27 season fixture data.",
+      "retrievedAt": "2026-10-31",
+      "redistributionAllowed": true
+    }
+  ],
+  "entities": [
+    {
+      "kind": "country",
+      "entityId": "TUR",
+      "sourceId": "openfootball-europe-turkey-2026-27",
+      "externalId": "Turkey"
+    },
+    {
+      "kind": "competition",
+      "entityId": "tur-super-lig-2026-27",
+      "sourceId": "openfootball-europe-turkey-2026-27",
+      "externalId": "Turkey | Süper Lig 2026/27"
+    },
+    {
+      "kind": "club",
+      "entityId": "galatasaray",
+      "sourceId": "openfootball-europe-turkey-2026-27",
+      "externalId": "Galatasaray"
+    },
+    {
+      "kind": "club",
+      "entityId": "arca-corum-fk",
+      "sourceId": "openfootball-europe-turkey-2026-27",
+      "externalId": "Çorum"
+    },
+    {
+      "kind": "club",
+      "entityId": "konyaspor",
+      "sourceId": "openfootball-europe-turkey-2026-27",
+      "externalId": "Atiker Konyaspor"
+    },
+    {
+      "kind": "club",
+      "entityId": "caykur-rizespor",
+      "sourceId": "openfootball-europe-turkey-2026-27",
+      "externalId": "Çaykur Rizespor"
+    },
+    {
+      "kind": "club",
+      "entityId": "kasimpasa",
+      "sourceId": "openfootball-europe-turkey-2026-27",
+      "externalId": "Kasimpasa"
+    },
+    {
+      "kind": "club",
+      "entityId": "trabzonspor",
+      "sourceId": "openfootball-europe-turkey-2026-27",
+      "externalId": "Trabzonspor"
+    },
+    {
+      "kind": "club",
+      "entityId": "gaziantep-fk",
+      "sourceId": "openfootball-europe-turkey-2026-27",
+      "externalId": "Gaziantep FK"
+    },
+    {
+      "kind": "club",
+      "entityId": "corendon-alanyaspor",
+      "sourceId": "openfootball-europe-turkey-2026-27",
+      "externalId": "Aytemiz Alanyaspor"
+    },
+    {
+      "kind": "club",
+      "entityId": "genclerbirligi",
+      "sourceId": "openfootball-europe-turkey-2026-27",
+      "externalId": "Gençlerbirligi"
+    },
+    {
+      "kind": "club",
+      "entityId": "fenerbahce",
+      "sourceId": "openfootball-europe-turkey-2026-27",
+      "externalId": "Fenerbahçe"
+    },
+    {
+      "kind": "club",
+      "entityId": "istanbul-basaksehir",
+      "sourceId": "openfootball-europe-turkey-2026-27",
+      "externalId": "İstanbul Başakşehir"
+    },
+    {
+      "kind": "club",
+      "entityId": "kocaelispor",
+      "sourceId": "openfootball-europe-turkey-2026-27",
+      "externalId": "Kocaelispor"
+    },
+    {
+      "kind": "club",
+      "entityId": "besiktas",
+      "sourceId": "openfootball-europe-turkey-2026-27",
+      "externalId": "Beşiktaş"
+    },
+    {
+      "kind": "club",
+      "entityId": "eyupspor",
+      "sourceId": "openfootball-europe-turkey-2026-27",
+      "externalId": "Eyüpspor"
+    },
+    {
+      "kind": "club",
+      "entityId": "amed-sportif-faaliyetler",
+      "sourceId": "openfootball-europe-turkey-2026-27",
+      "externalId": "Amed"
+    },
+    {
+      "kind": "club",
+      "entityId": "erzurumspor-fk",
+      "sourceId": "openfootball-europe-turkey-2026-27",
+      "externalId": "BB Erzurumspor"
+    },
+    {
+      "kind": "club",
+      "entityId": "samsunspor",
+      "sourceId": "openfootball-europe-turkey-2026-27",
+      "externalId": "Samsunspor"
+    },
+    {
+      "kind": "club",
+      "entityId": "goztepe",
+      "sourceId": "openfootball-europe-turkey-2026-27",
+      "externalId": "Göztepe"
+    }
+  ],
+  "assets": []
+}

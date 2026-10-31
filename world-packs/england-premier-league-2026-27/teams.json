@@ -1,0 +1,245 @@
+{
+  "schema": "team",
+  "items": [
+    {
+      "id": "afc-bournemouth",
+      "name": "AFC Bournemouth",
+      "shortName": "BOU",
+      "city": "Bournemouth",
+      "country": "ENG",
+      "colors": {
+        "primary": "#DA291C",
+        "secondary": "#000000"
+      },
+      "playStyle": "Balanced"
+    },
+    {
+      "id": "arsenal",
+      "name": "Arsenal",
+      "shortName": "ARS",
+      "city": "London",
+      "country": "ENG",
+      "colors": {
+        "primary": "#EF0107",
+        "secondary": "#FFFFFF"
+      },
+      "playStyle": "Balanced"
+    },
+    {
+      "id": "aston-villa",
+      "name": "Aston Villa",
+      "shortName": "AVL",
+      "city": "Birmingham",
+      "country": "ENG",
+      "colors": {
+        "primary": "#670E36",
+        "secondary": "#95BFE5"
+      },
+      "playStyle": "Balanced"
+    },
+    {
+      "id": "brentford",
+      "name": "Brentford",
+      "shortName": "BRE",
+      "city": "London",
+      "country": "ENG",
+      "colors": {
+        "primary": "#E30613",
+        "secondary": "#FFFFFF"
+      },
+      "playStyle": "Balanced"
+    },
+    {
+      "id": "brighton-and-hove-albion",
+      "name": "Brighton & Hove Albion",
+      "shortName": "BHA",
+      "city": "Brighton and Hove",
+      "country": "ENG",
+      "colors": {
+        "primary": "#0057B8",
+        "secondary": "#FFFFFF"
+      },
+      "playStyle": "Balanced"
+    },
+    {
+      "id": "chelsea",
+      "name": "Chelsea",
+      "shortName": "CHE",
+      "city": "London",
+      "country": "ENG",
+      "colors": {
+        "primary": "#034694",
+        "secondary": "#FFFFFF"
+      },
+      "playStyle": "Balanced"
+    },
+    {
+      "id": "coventry-city",
+      "name": "Coventry City",
+      "shortName": "COV",
+      "city": "Coventry",
+      "country": "ENG",
+      "colors": {
+        "primary": "#86C8EE",
+        "secondary": "#FFFFFF"
+      },
+      "playStyle": "Balanced"
+    },
+    {
+      "id": "crystal-palace",
+      "name": "Crystal Palace",
+      "shortName": "CRY",
+      "city": "London",
+      "country": "ENG",
+      "colors": {
+        "primary": "#1B458F",
+        "secondary": "#C41230"
+      },
+      "playStyle": "Balanced"
+    },
+    {
+      "id": "everton",
+      "name": "Everton",
+      "shortName": "EVE",
+      "city": "Liverpool",
+      "country": "ENG",
+      "colors": {
+        "primary": "#003399",
+        "secondary": "#FFFFFF"
+      },
+      "playStyle": "Balanced"
+    },
+    {
+      "id": "fulham",
+      "name": "Fulham",
+      "shortName": "FUL",
+      "city": "London",
+      "country": "ENG",
+      "colors": {
+        "primary": "#FFFFFF",
+        "secondary": "#000000"
+      },
+      "playStyle": "Balanced"
+    },
+    {
+      "id": "hull-city",
+      "name": "Hull City",
+      "shortName": "HUL",
+      "city": "Kingston upon Hull",
+      "country": "ENG",
+      "colors": {
+        "primary": "#F3B61B",
+        "secondary": "#000000"
+      },
+      "playStyle": "Balanced"
+    },
+    {
+      "id": "ipswich-town",
+      "name": "Ipswich Town",
+      "shortName": "IPS",
+      "city": "Ipswich",
+      "country": "ENG",
+      "colors": {
+        "primary": "#3A64A3",
+        "secondary": "#FFFFFF"
+      },
+      "playStyle": "Balanced"
+    },
+    {
+      "id": "leeds-united",
+      "name": "Leeds United",
+      "shortName": "LEE",
+      "city": "Leeds",
+      "country": "ENG",
+      "colors": {
+        "primary": "#FFFFFF",
+        "secondary": "#FFCD00"
+      },
+      "playStyle": "Balanced"
+    },
+    {
+      "id": "liverpool",
+      "name": "Liverpool",
+      "shortName": "LIV",
+      "city": "Liverpool",
+      "country": "ENG",
+      "colors": {
+        "primary": "#C8102E",
+        "secondary": "#FFFFFF"
+      },
+      "playStyle": "Balanced"
+    },
+    {
+      "id": "manchester-city",
+      "name": "Manchester City",
+      "shortName": "MCI",
+      "city": "Manchester",
+      "country": "ENG",
+      "colors": {
+        "primary": "#6CABDD",
+        "secondary": "#FFFFFF"
+      },
+      "playStyle": "Balanced"
+    },
+    {
+      "id": "manchester-united",
+      "name": "Manchester United",
+      "shortName": "MUN",
+      "city": "Manchester",
+      "country": "ENG",
+      "colors": {
+        "primary": "#DA291C",
+        "secondary": "#FFFFFF"
+      },
+      "playStyle": "Balanced"
+    },
+    {
+      "id": "newcastle-united",
+      "name": "Newcastle United",
+      "shortName": "NEW",
+      "city": "Newcastle upon Tyne",
+      "country": "ENG",
+      "colors": {
+        "primary": "#000000",
+        "secondary": "#FFFFFF"
+      },
+      "playStyle": "Balanced"
+    },
+    {
+      "id": "nottingham-forest",
+      "name": "Nottingham Forest",
+      "shortName": "NFO",
+      "city": "Nottingham",
+      "country": "ENG",
+      "colors": {
+        "primary": "#DD0000",
+        "secondary": "#FFFFFF"
+      },
+      "playStyle": "Balanced"
+    },
+    {
+      "id": "sunderland",
+      "name": "Sunderland",
+      "shortName": "SUN",
+      "city": "Sunderland",
+      "country": "ENG",
+      "colors": {
+        "primary": "#EB172B",
+        "secondary": "#FFFFFF"
+      },
+      "playStyle": "Balanced"
+    },
+    {
+      "id": "tottenham-hotspur",
+      "name": "Tottenham Hotspur",
+      "shortName": "TOT",
+      "city": "London",
+      "country": "ENG",
+      "colors": {
+        "primary": "#FFFFFF",
+        "secondary": "#132257"
+      },
+      "playStyle": "Balanced"
+    }
+  ]
+}

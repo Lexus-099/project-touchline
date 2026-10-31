@@ -1,0 +1,15 @@
+{
+  "schema": "world",
+  "id": "england-premier-league-2026-27",
+  "name": "English Premier League 2026/27",
+  "description": "2026/27 English top-flight club database baseline. Club membership and identifiers are based on CC0 OpenFootball season data.",
+  "version": "1.0.0",
+  "author": "Project Touchline",
+  "license": "CC0-1.0",
+  "packageType": "database",
+  "baseYear": 2026,
+  "defaultActiveRegions": [],
+  "defaultActiveCompetitions": [
+    "eng-premier-league-2026-27"
+  ]
+}

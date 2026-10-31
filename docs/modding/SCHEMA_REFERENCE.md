@@ -122,7 +122,7 @@ missing, so a package can no longer be written to an unnamed file.
 
 Because it becomes a filename, the `id` must be a plain one, or validation
 reports `be.error.package.invalidPackageId`: it cannot start with a dot, end
-with a dot or a space, contain `/`, `\`, `..`, control characters or
+with a dot or a space, contain `/`, ``, `..`, control characters or
 Windows-reserved punctuation (`<`, `>`, `:`, `"`, `|`, `?`, `*`), exceed
 251 bytes, be a Windows device name (`CON`, `PRN`, `AUX`, `NUL`, `COM1`–`COM9`,
 `LPT1`–`LPT9`, `COM¹`–`COM³`, `LPT¹`–`LPT³`, in any case and with any extension),
@@ -685,3 +685,98 @@ Provides first and last name lists for random player name generation. Keyed by I
 ```
 
 The built-in name pools already cover common footballing countries. You only need to define name pools for countries your package introduces, or if you want to customize the names generated for existing countries.
+
+
+---
+
+## `worldDataManifest` — Source provenance and media rights
+
+A world-data manifest records where real-world records came from and whether their associated media may be redistributed. It is intentionally separate from the club/player/competition entities: provider IDs remain traceable without becoming permanent in-game IDs.
+
+Place a file with this schema anywhere in the package directory tree. More than one manifest may be used when a package stack combines independent data sources.
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `schema` | string | yes | Always `"worldDataManifest"`. |
+| `formatVersion` | integer | no | Defaults to `1`; this version supports `1`. |
+| `dataAsOf` | string or null | recommended | Date represented by the data, in `YYYY-MM-DD` format. |
+| `sources` | array | yes for a populated manifest | Data providers/federations, their HTTPS source URL, declared license, retrieval date and redistribution permission. |
+| `entities` | array | no | Maps an in-game entity ID to its external provider ID. |
+| `assets` | array | no | Media paths, owning entity, source, license and redistribution permission. |
+
+### Source entry
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | string | Stable lowercase source slug. |
+| `provider` | string | Publisher, provider or federation name. |
+| `sourceUrl` | string | Absolute HTTPS page or API documentation URL. |
+| `license` | string | Declared data license or terms identifier. |
+| `licenseUrl` | string or null | HTTPS license reference. |
+| `termsUrl` | string or null | HTTPS terms reference. |
+| `attribution` | string or null | Attribution text required by the source. |
+| `retrievedAt` | string or null | Retrieval date in `YYYY-MM-DD` format. |
+| `redistributionAllowed` | boolean | Must be explicitly true before records from this source can ship in a package. |
+
+### Entity source mapping
+
+Each mapping has `kind`, `entityId`, `sourceId` and `externalId`. The entity-kind enum also reserves `nationalTeam`, `manager` and `stadium` for future package schemas; the current package loader can resolve `confederation`, `country`, `club`, `player`, `staff` and `competition`. A mapping must target an entity that the current package actually contains. Provider IDs are scoped by source and entity kind.
+
+### Media entry
+
+Each asset has a package-relative `path`, a media `kind`, `ownerKind`, `ownerId`, `sourceId`, a declared `license`, optional `attribution`, and `redistributionAllowed`. Media kinds are `clubCrest`, `nationalTeamCrest`, `competitionLogo`, `playerPortrait`, `staffPortrait`, `stadiumPhoto`, `homeKit`, `awayKit` and `thirdKit`.
+
+The validator rejects traversal paths, unknown source references, missing licenses, missing redistribution permission, duplicate paths, and assets whose owner does not exist. When a package includes a world-data manifest, every club logo, player photo and competition logo referenced by the entity files must also have a matching asset entry. This check is a declaration/rights check; it does not prove that a remote provider actually grants the stated rights or that the image bytes are present.
+
+### Example
+
+```json
+{
+  "schema": "worldDataManifest",
+  "formatVersion": 1,
+  "dataAsOf": "2026-10-31",
+  "sources": [
+    {
+      "id": "example-federation",
+      "provider": "Example Federation",
+      "sourceUrl": "https://example.org/data",
+      "license": "CC-BY-4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+      "attribution": "Example Federation",
+      "retrievedAt": "2026-10-31",
+      "redistributionAllowed": true
+    }
+  ],
+  "entities": [
+    {
+      "kind": "club",
+      "entityId": "sample-club",
+      "sourceId": "example-federation",
+      "externalId": "club-123"
+    },
+    {
+      "kind": "player",
+      "entityId": "sample-player",
+      "sourceId": "example-federation",
+      "externalId": "player-456"
+    }
+  ],
+  "assets": [
+    {
+      "path": "assets/players/sample-player.webp",
+      "kind": "playerPortrait",
+      "ownerKind": "player",
+      "ownerId": "sample-player",
+      "sourceId": "example-federation",
+      "license": "CC-BY-4.0",
+      "attribution": "Example Federation",
+      "redistributionAllowed": true
+    }
+  ]
+}
+```
+
+The example is a schema illustration, not a real provider, team or player record. Do not set `redistributionAllowed` to true based only on the fact that a URL can be opened or an image can be downloaded. Verify the specific provider terms and each media asset's license before packaging it.
+
+Player identity matching is conservative: the same source plus external ID is an exact provider record; a cross-source match requires the normalized full name, full date of birth and nationality to agree. Incomplete or conflicting identities are surfaced for review instead of being silently merged.
+

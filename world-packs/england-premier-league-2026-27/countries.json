@@ -1,0 +1,10 @@
+{
+  "schema": "country",
+  "items": [
+    {
+      "id": "ENG",
+      "name": "England",
+      "confederation": ""
+    }
+  ]
+}

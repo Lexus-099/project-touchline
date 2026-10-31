@@ -20,6 +20,10 @@ use domain::staff::{CoachingSpecialization, StaffAttributes, StaffRole};
 use super::authored_player::{
     authored_player_errors, invalid_date_of_birth_error, is_valid_date_of_birth,
 };
+use super::world_data::{
+    KnownWorldEntity, WorldDataEntityKind, WorldDataManifest, WorldDataIssueSeverity,
+    audit_world_data,
+};
 use super::{CompetitionDefinition, NamesDefinition, TeamDef};
 
 // ---------------------------------------------------------------------------
@@ -312,6 +316,8 @@ pub struct WorldPackage {
     pub players: Vec<PlayerDef>,
     pub staff: Vec<StaffDef>,
     pub competitions: Vec<CompetitionDefinition>,
+    /// Optional provenance and media-rights manifests for imported real-world datasets.
+    pub world_data_manifests: Vec<WorldDataManifest>,
     pub names: Option<NamesDefinition>,
     /// The file each country's name pool came from, to notice a country given twice.
     name_pool_files: std::collections::HashMap<String, String>,
@@ -629,6 +635,12 @@ fn classify_entity(
                 package.competitions.push(def);
             }
         }
+        "worldDataManifest" => {
+            if let Some(def) = parse_entity::<WorldDataManifest>(value, file, schema, errors) {
+                package.remember(schema, file);
+                package.world_data_manifests.push(def);
+            }
+        }
         "names" => {
             if let Some(def) = parse_entity::<NamesDefinition>(value, file, schema, errors) {
                 add_name_pools(package, def, file);
@@ -892,6 +904,101 @@ pub fn validate_package(package: &WorldPackage) -> Vec<PackageError> {
     let mut errors = validate_format_version(package);
     errors.extend(validate_manifest(package));
     errors.extend(validate_references(package));
+    errors.extend(validate_world_data_manifests(package));
+    errors
+}
+
+/// Validate declared provenance and redistribution rights with the shared world-data auditor.
+fn validate_world_data_manifests(package: &WorldPackage) -> Vec<PackageError> {
+    if package.world_data_manifests.is_empty() {
+        return Vec::new();
+    }
+    let mut known_entities = Vec::new();
+    known_entities.extend(package.confederations.iter().map(|entity| KnownWorldEntity {
+        kind: WorldDataEntityKind::Confederation,
+        id: entity.id.clone(),
+    }));
+    known_entities.extend(package.countries.iter().map(|entity| KnownWorldEntity {
+        kind: WorldDataEntityKind::Country,
+        id: entity.id.clone(),
+    }));
+    known_entities.extend(package.teams.iter().map(|entity| KnownWorldEntity {
+        kind: WorldDataEntityKind::Club,
+        id: entity.id.clone(),
+    }));
+    known_entities.extend(package.players.iter().map(|entity| KnownWorldEntity {
+        kind: WorldDataEntityKind::Player,
+        id: entity.id.clone(),
+    }));
+    known_entities.extend(package.staff.iter().map(|entity| KnownWorldEntity {
+        kind: WorldDataEntityKind::Staff,
+        id: entity.id.clone(),
+    }));
+    known_entities.extend(package.competitions.iter().map(|entity| KnownWorldEntity {
+        kind: WorldDataEntityKind::Competition,
+        id: entity.id.clone(),
+    }));
+
+    let mut errors = Vec::new();
+    for (index, manifest) in package.world_data_manifests.iter().enumerate() {
+        let audit = audit_world_data(Some(manifest), &known_entities);
+        let file = package.source_at("worldDataManifest", index);
+        for issue in audit.issues {
+            if issue.severity == WorldDataIssueSeverity::Error {
+                errors.push(
+                    PackageError::new(INVALID_ENTITY, &file)
+                        .with("schema", "worldDataManifest")
+                        .with("detail", issue.message),
+                );
+            }
+        }
+    }
+    errors.extend(validate_package_media_declarations(package));
+    errors
+}
+
+/// Every image referenced by an entity must have a matching rights declaration when a provenance
+/// manifest is present. Old packages without the new manifest remain compatible.
+fn validate_package_media_declarations(package: &WorldPackage) -> Vec<PackageError> {
+    if package.world_data_manifests.is_empty() {
+        return Vec::new();
+    }
+    let declared = |kind: WorldDataEntityKind, entity_id: &str, path: &str| {
+        package.world_data_manifests.iter().any(|manifest| {
+            manifest.assets.iter().any(|asset| {
+                asset.owner_kind == kind && asset.owner_id == entity_id && asset.path == path
+            })
+        })
+    };
+    let mut errors = Vec::new();
+    let mut missing = |kind: WorldDataEntityKind, entity_id: &str, path: &str| {
+        if !declared(kind, entity_id, path) {
+            errors.push(
+                PackageError::new(INVALID_ENTITY, "")
+                    .with("schema", "worldDataManifest")
+                    .with(
+                        "detail",
+                        format!("Media asset '{path}' for '{}' has no matching rights declaration.", entity_id),
+                    ),
+            );
+        }
+    };
+
+    for team in &package.teams {
+        if let Some(path) = team.logo.as_deref() {
+            missing(WorldDataEntityKind::Club, &team.id, path);
+        }
+    }
+    for player in &package.players {
+        if let Some(path) = player.photo.as_deref() {
+            missing(WorldDataEntityKind::Player, &player.id, path);
+        }
+    }
+    for competition in &package.competitions {
+        if let Some(path) = competition.logo.as_deref() {
+            missing(WorldDataEntityKind::Competition, &competition.id, path);
+        }
+    }
     errors
 }
 
@@ -1673,6 +1780,7 @@ pub fn merge_world_packages(packages: Vec<WorldPackage>) -> (WorldPackage, Vec<P
     let mut players: BTreeMap<String, (PlayerDef, String)> = BTreeMap::new();
     let mut staff_map: BTreeMap<String, (StaffDef, String)> = BTreeMap::new();
     let mut competitions: BTreeMap<String, (CompetitionDefinition, String)> = BTreeMap::new();
+    let mut world_data_manifests: Vec<(WorldDataManifest, String)> = Vec::new();
 
     // Collected meta fields for union/max merging.
     let mut all_default_active_competitions: Vec<String> = Vec::new();
@@ -1777,6 +1885,9 @@ pub fn merge_world_packages(packages: Vec<WorldPackage>) -> (WorldPackage, Vec<P
                 None => merged_names = Some(names),
             }
         }
+        for (index, manifest) in package.world_data_manifests.into_iter().enumerate() {
+            world_data_manifests.push((manifest, file_of("worldDataManifest", index)));
+        }
         // A repeat inside one package is that package's own mistake and travels with it; a later
         // package replacing an earlier one's pool is stacking, and is not recorded.
         merged
@@ -1823,6 +1934,11 @@ pub fn merge_world_packages(packages: Vec<WorldPackage>) -> (WorldPackage, Vec<P
     merged
         .sources
         .insert("competition".to_string(), competitions_files);
+    let (manifests, manifest_files): (Vec<_>, Vec<_>) = world_data_manifests.into_iter().unzip();
+    merged.world_data_manifests = manifests;
+    merged
+        .sources
+        .insert("worldDataManifest".to_string(), manifest_files);
 
     // `validate_ids` *and* the non-metadata parts of `validate_package`.
     //
@@ -2028,6 +2144,16 @@ pub fn qualify_package_asset_paths(package: &mut WorldPackage, package_id: &str)
     }
     for player in &mut package.players {
         qualify(&mut player.photo);
+    }
+    for competition in &mut package.competitions {
+        qualify(&mut competition.logo);
+    }
+    for manifest in &mut package.world_data_manifests {
+        for asset in &mut manifest.assets {
+            let mut path = Some(asset.path.clone());
+            qualify(&mut path);
+            asset.path = path.unwrap_or_default();
+        }
     }
     if let Some(meta) = package.meta.as_mut() {
         qualify(&mut meta.logo);
@@ -2252,6 +2378,84 @@ pub fn read_logo_from_ofm(archive_path: &Path, logo_path: &str) -> Option<String
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn loads_a_world_data_manifest_and_validates_source_identity_links() {
+        let dir = std::env::temp_dir().join(format!(
+            "ofm-world-data-{}",
+            uuid::Uuid::new_v4()
+        ));
+        std::fs::create_dir_all(dir.join("teams")).unwrap();
+        std::fs::write(
+            dir.join("teams").join("teams.json"),
+            r##"{"schema":"team","items":[{"id":"sample-club","name":"Sample Club","city":"London","country":"ENG","colors":{"primary":"#112233","secondary":"#ffffff"}}]}"##,
+        )
+        .unwrap();
+        std::fs::write(
+            dir.join("world-data.json"),
+            r##"{
+                "schema":"worldDataManifest",
+                "formatVersion":1,
+                "dataAsOf":"2026-10-31",
+                "sources":[{
+                    "id":"federation-data",
+                    "provider":"Example Federation",
+                    "sourceUrl":"https://example.org/data",
+                    "license":"CC-BY-4.0",
+                    "redistributionAllowed":true
+                }],
+                "entities":[{
+                    "kind":"club",
+                    "entityId":"sample-club",
+                    "sourceId":"federation-data",
+                    "externalId":"club-123"
+                }]
+            }"##,
+        )
+        .unwrap();
+
+        let (package, errors) = load_world_package(&dir);
+
+        assert!(errors.is_empty(), "unexpected package errors: {errors:?}");
+        assert_eq!(package.world_data_manifests.len(), 1);
+        assert_eq!(package.world_data_manifests[0].entities[0].external_id, "club-123");
+        std::fs::remove_dir_all(&dir).ok();
+    }
+
+    #[test]
+    fn rejects_media_without_a_matching_rights_declaration() {
+        let package = WorldPackage {
+            teams: vec![serde_json::from_value(serde_json::json!({
+                "id":"sample-club",
+                "name":"Sample Club",
+                "city":"London",
+                "country":"ENG",
+                "colors":{"primary":"#112233","secondary":"#ffffff"},
+                "logo":"assets/club.png"
+            })).unwrap()],
+            world_data_manifests: vec![WorldDataManifest {
+                sources: vec![WorldDataSource {
+                    id: "source".to_string(),
+                    provider: "Example".to_string(),
+                    source_url: "https://example.org/data".to_string(),
+                    license: "CC-BY-4.0".to_string(),
+                    redistribution_allowed: true,
+                    ..WorldDataSource::default()
+                }],
+                ..WorldDataManifest::default()
+            }],
+            ..WorldPackage::default()
+        };
+
+        let errors = validate_package(&package);
+
+        assert!(errors.iter().any(|error| {
+            error.code == INVALID_ENTITY
+                && error.params.iter().any(|(key, value)| {
+                    key == "detail" && value.contains("no matching rights declaration")
+                })
+        }));
+    }
 
     #[test]
     fn world_meta_def_round_trips_fallback_league_config() {
@@ -2995,6 +3199,48 @@ mod tests {
         assert_eq!(
             package.teams[0].logo.as_deref(),
             Some("brazil-1962/assets/images/santos.png"),
+        );
+    }
+
+    #[test]
+    fn qualifying_asset_paths_keeps_manifest_asset_paths_aligned_with_entity_artwork() {
+        let team: TeamDef = serde_json::from_value(serde_json::json!({
+            "id": "sample-club",
+            "name": "Sample Club",
+            "city": "London",
+            "country": "ENG",
+            "colors": { "primary": "#112233", "secondary": "#ffffff" },
+            "logo": "assets/crests/sample-club.png"
+        }))
+        .expect("team definition");
+
+        let mut package = WorldPackage {
+            teams: vec![team],
+            world_data_manifests: vec![WorldDataManifest {
+                assets: vec![super::super::world_data::WorldDataAsset {
+                    path: "assets/crests/sample-club.png".to_string(),
+                    kind: super::super::world_data::WorldDataAssetKind::ClubCrest,
+                    owner_kind: WorldDataEntityKind::Club,
+                    owner_id: "sample-club".to_string(),
+                    source_id: "federation".to_string(),
+                    license: "CC-BY-4.0".to_string(),
+                    redistribution_allowed: true,
+                    ..super::super::world_data::WorldDataAsset::default()
+                }],
+                ..WorldDataManifest::default()
+            }],
+            ..WorldPackage::default()
+        };
+
+        qualify_package_asset_paths(&mut package, "world-pack");
+
+        assert_eq!(
+            package.teams[0].logo.as_deref(),
+            Some("world-pack/assets/crests/sample-club.png")
+        );
+        assert_eq!(
+            package.world_data_manifests[0].assets[0].path,
+            "world-pack/assets/crests/sample-club.png"
         );
     }
 

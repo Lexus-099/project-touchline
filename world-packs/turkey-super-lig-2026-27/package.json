@@ -1,0 +1,15 @@
+{
+  "schema": "world",
+  "id": "turkey-super-lig-2026-27",
+  "name": "Trendyol Süper Lig 2026/27",
+  "description": "Türkiye 2026/27 Süper Lig 18-kulüp başlangıç veritabanı. Kulüp katılımı OpenFootball CC0 sezon fikstür verisiyle çapraz referanslanmıştır.",
+  "version": "1.0.0",
+  "author": "Project Touchline",
+  "license": "CC0-1.0",
+  "packageType": "database",
+  "baseYear": 2026,
+  "defaultActiveRegions": [],
+  "defaultActiveCompetitions": [
+    "tur-super-lig-2026-27"
+  ]
+}
