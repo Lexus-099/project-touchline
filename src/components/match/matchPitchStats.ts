@@ -175,3 +175,44 @@ export function filterMatchEvents(
   const matching = filter === "all" ? events : events.filter((event) => EVENT_FILTERS[filter].has(event.event_type));
   return matching.slice(-Math.max(0, limit)).reverse();
 }
+
+export interface MatchMomentumPeriod {
+  start: number;
+  home: number;
+  away: number;
+}
+
+const PRESSURE_EVENTS = new Set([
+  "Goal",
+  "PenaltyGoal",
+  "ShotSaved",
+  "ShotOnTarget",
+  "ShotOffTarget",
+  "ShotBlocked",
+  "Corner",
+]);
+
+/** Group attacking events into 15-minute periods for the match momentum chart. */
+export function buildMatchMomentum(
+  events: readonly MatchEvent[],
+  matchDuration: number,
+): MatchMomentumPeriod[] {
+  const periodCount = Math.max(1, Math.ceil(matchDuration / 15));
+  const periods = Array.from({ length: periodCount }, (_, index) => ({
+    start: index * 15,
+    home: 0,
+    away: 0,
+  }));
+
+  for (const event of events) {
+    if (!PRESSURE_EVENTS.has(event.event_type)) continue;
+    const periodIndex = Math.min(
+      periods.length - 1,
+      Math.max(0, Math.floor(Math.max(0, event.minute - 1) / 15)),
+    );
+    const period = periods[periodIndex];
+    if (period) period[event.side === "Home" ? "home" : "away"] += 1;
+  }
+
+  return periods;
+}
