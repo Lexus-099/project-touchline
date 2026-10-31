@@ -953,12 +953,58 @@ fn validate_world_data_manifests(package: &WorldPackage) -> Vec<PackageError> {
             }
         }
     }
+    errors.extend(validate_package_media_declarations(package));
     if package.world_data_manifests.len() > 1 {
         errors.push(
             PackageError::new(INVALID_ENTITY, "")
                 .with("schema", "worldDataManifest")
                 .with("detail", "A package may declare only one world-data manifest."),
         );
+    }
+    errors
+}
+
+/// Every image referenced by an entity must have a matching rights declaration when a provenance
+/// manifest is present. Old packages without the new manifest remain compatible.
+fn validate_package_media_declarations(package: &WorldPackage) -> Vec<PackageError> {
+    if package.world_data_manifests.is_empty() {
+        return Vec::new();
+    }
+    let declared = |kind: WorldDataEntityKind, entity_id: &str, path: &str| {
+        package.world_data_manifests.iter().any(|manifest| {
+            manifest.assets.iter().any(|asset| {
+                asset.owner_kind == kind && asset.owner_id == entity_id && asset.path == path
+            })
+        })
+    };
+    let mut errors = Vec::new();
+    let mut missing = |kind: WorldDataEntityKind, entity_id: &str, path: &str| {
+        if !declared(kind, entity_id, path) {
+            errors.push(
+                PackageError::new(INVALID_ENTITY, "")
+                    .with("schema", "worldDataManifest")
+                    .with(
+                        "detail",
+                        format!("Media asset '{path}' for '{}' has no matching rights declaration.", entity_id),
+                    ),
+            );
+        }
+    };
+
+    for team in &package.teams {
+        if let Some(path) = team.logo.as_deref() {
+            missing(WorldDataEntityKind::Club, &team.id, path);
+        }
+    }
+    for player in &package.players {
+        if let Some(path) = player.photo.as_deref() {
+            missing(WorldDataEntityKind::Player, &player.id, path);
+        }
+    }
+    for competition in &package.competitions {
+        if let Some(path) = competition.logo.as_deref() {
+            missing(WorldDataEntityKind::Competition, &competition.id, path);
+        }
     }
     errors
 }
@@ -2321,6 +2367,84 @@ pub fn read_logo_from_ofm(archive_path: &Path, logo_path: &str) -> Option<String
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn loads_a_world_data_manifest_and_validates_source_identity_links() {
+        let dir = std::env::temp_dir().join(format!(
+            "ofm-world-data-{}",
+            uuid::Uuid::new_v4()
+        ));
+        std::fs::create_dir_all(dir.join("teams")).unwrap();
+        std::fs::write(
+            dir.join("teams").join("teams.json"),
+            r##"{"schema":"team","items":[{"id":"sample-club","name":"Sample Club","city":"London","country":"ENG","colors":{"primary":"#112233","secondary":"#ffffff"}}]}"##,
+        )
+        .unwrap();
+        std::fs::write(
+            dir.join("world-data.json"),
+            r##"{
+                "schema":"worldDataManifest",
+                "formatVersion":1,
+                "dataAsOf":"2026-10-31",
+                "sources":[{
+                    "id":"federation-data",
+                    "provider":"Example Federation",
+                    "sourceUrl":"https://example.org/data",
+                    "license":"CC-BY-4.0",
+                    "redistributionAllowed":true
+                }],
+                "entities":[{
+                    "kind":"club",
+                    "entityId":"sample-club",
+                    "sourceId":"federation-data",
+                    "externalId":"club-123"
+                }]
+            }"##,
+        )
+        .unwrap();
+
+        let (package, errors) = load_world_package(&dir);
+
+        assert!(errors.is_empty(), "unexpected package errors: {errors:?}");
+        assert_eq!(package.world_data_manifests.len(), 1);
+        assert_eq!(package.world_data_manifests[0].entities[0].external_id, "club-123");
+        std::fs::remove_dir_all(&dir).ok();
+    }
+
+    #[test]
+    fn rejects_media_without_a_matching_rights_declaration() {
+        let package = WorldPackage {
+            teams: vec![serde_json::from_value(serde_json::json!({
+                "id":"sample-club",
+                "name":"Sample Club",
+                "city":"London",
+                "country":"ENG",
+                "colors":{"primary":"#112233","secondary":"#ffffff"},
+                "logo":"assets/club.png"
+            })).unwrap()],
+            world_data_manifests: vec![WorldDataManifest {
+                sources: vec![WorldDataSource {
+                    id: "source".to_string(),
+                    provider: "Example".to_string(),
+                    source_url: "https://example.org/data".to_string(),
+                    license: "CC-BY-4.0".to_string(),
+                    redistribution_allowed: true,
+                    ..WorldDataSource::default()
+                }],
+                ..WorldDataManifest::default()
+            }],
+            ..WorldPackage::default()
+        };
+
+        let errors = validate_package(&package);
+
+        assert!(errors.iter().any(|error| {
+            error.code == INVALID_ENTITY
+                && error.params.iter().any(|(key, value)| {
+                    key == "detail" && value.contains("no matching rights declaration")
+                })
+        }));
+    }
 
     #[test]
     fn world_meta_def_round_trips_fallback_league_config() {
