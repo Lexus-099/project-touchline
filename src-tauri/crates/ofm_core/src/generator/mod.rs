@@ -8,6 +8,7 @@ pub mod package;
 mod package_warnings;
 pub mod scaffold;
 pub mod world_io;
+pub mod world_data;
 mod youth;
 
 pub use clubs::WorldGenConfig;
@@ -29,6 +30,7 @@ pub use scaffold::{
     slugify,
 };
 pub use world_io::*;
+pub use world_data::*;
 pub(crate) use youth::generate_youth_intake_recruit;
 pub use youth::{generate_youth_academy_recruit, generate_youth_academy_recruit_with_nationality};
 
